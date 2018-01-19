@@ -191,7 +191,7 @@ class Discriminative(nn.Module):
     def __init__(self, config):
         super(Discriminative, self).__init__()
 
-        print '===> Init small-conv for {}'.format(config.dataset)
+        print ('===> Init small-conv for {}'.format(config.dataset))
 
         self.noise_size = config.noise_size
         self.num_label  = config.num_label
