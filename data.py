@@ -169,14 +169,19 @@ def get_gris_loaders(config):
     # labeled_indices, unlabeled_indices = indices[mask], indices[~ mask]
 
     labeled_indices, test_indices_uf = indices[mask], indices[~mask]
-    
+    print ('# Labeled indices ', len(labeled_indices) )
+    print ('# Unlabeled indices All ', len(test_indices_uf) )
+	
     test_mask = np.zeros(test_indices_uf.shape[0], dtype=np.bool)
     test_labels = np.array([training_set[i][1] for i in test_indices_uf], dtype=np.int64)
     for i in range(10):
         test_mask[np.where(test_labels == i)[0][: int(config.size_test_data / 10)]] = True
-    test_indices, unlabeled_indices = test_indices_uf[test_mask], test_indices_uf[~test_mask] 
-
-
+    test_indices, unlabeled_indices_all = test_indices_uf[test_mask], test_indices_uf[~test_mask] 
+    
+    unlabeled_indices = unlabeled_indices_all[:15000]
+    print ('# Unlabeled indices train', len(unlabeled_indices))
+    print ('# Test indices ', len(test_indices))
+	
     print ('labeled size', labeled_indices.shape[0], 'unlabeled size', unlabeled_indices.shape[0], 'dev size', test_indices.shape[0])
 
     labeled_loader = DataLoader(config, training_set, labeled_indices, config.train_batch_size)

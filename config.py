@@ -99,7 +99,8 @@ class cifar_config:
 
 class gris_config:
     dataset = 'gris'
-    image_size = 3 * 32 * 32
+    #image_size = 3 * 32 * 32
+    image_size = 3 * 128 * 128
     num_label = 10
 
     gen_emb_size = 20
