@@ -195,3 +195,47 @@ def get_gris_loaders(config):
     special_set = torch.stack(special_set)
 
     return labeled_loader, unlabeled_loader, unlabeled_loader2, dev_loader, special_set
+
+
+def get_pr2_loaders(config):
+    transform = transforms.Compose([transforms.Resize(size=(32, 32), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    #training_set = CIFAR10('cifar', train=True, download=True, transform=transform)
+    #dev_set = CIFAR10('cifar', train=False, download=True, transform=transform)
+    
+    training_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/', transform=transform)   
+ 
+    indices = np.arange(len(training_set))
+    np.random.shuffle(indices)
+    mask = np.zeros(indices.shape[0], dtype=np.bool)
+    labels = np.array([training_set[i][1] for i in indices], dtype=np.int64)
+    for i in range(10):
+        mask[np.where(labels == i)[0][: int(config.size_labeled_data / 10)]] = True
+    # labeled_indices, unlabeled_indices = indices[mask], indices[~ mask]
+
+    labeled_indices, test_indices_uf = indices[mask], indices[~mask]
+    print ('# Labeled indices ', len(labeled_indices) )
+    print ('# Unlabeled indices All ', len(test_indices_uf) )
+	
+    test_mask = np.zeros(test_indices_uf.shape[0], dtype=np.bool)
+    test_labels = np.array([training_set[i][1] for i in test_indices_uf], dtype=np.int64)
+    for i in range(10):
+        test_mask[np.where(test_labels == i)[0][: int(config.size_test_data / 10)]] = True
+    test_indices, unlabeled_indices_all = test_indices_uf[test_mask], test_indices_uf[~test_mask] 
+    
+    unlabeled_indices = unlabeled_indices_all[:15000]
+    print ('# Unlabeled indices train', len(unlabeled_indices))
+    print ('# Test indices ', len(test_indices))
+	
+    print ('labeled size', labeled_indices.shape[0], 'unlabeled size', unlabeled_indices.shape[0], 'dev size', test_indices.shape[0])
+
+    labeled_loader = DataLoader(config, training_set, labeled_indices, config.train_batch_size)
+    unlabeled_loader = DataLoader(config, training_set, unlabeled_indices, config.train_batch_size_2)
+    unlabeled_loader2 = DataLoader(config, training_set, unlabeled_indices, config.train_batch_size_2)
+    dev_loader = DataLoader(config, training_set, test_indices, config.dev_batch_size)
+
+    special_set = []
+    for i in range(10):
+        special_set.append(training_set[indices[np.where(labels==i)[0][0]]][0])
+    special_set = torch.stack(special_set)
+
+    return labeled_loader, unlabeled_loader, unlabeled_loader2, dev_loader, special_set

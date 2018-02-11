@@ -202,6 +202,8 @@ class Discriminative(nn.Module):
             n_filter_1, n_filter_2 = 96, 192
         elif config.dataset == 'gris':
             n_filter_1, n_filter_2 = 96, 192	
+        elif config.dataset == 'pr2':
+            n_filter_1, n_filter_2 = 96, 192	
         else:
             raise ValueError('dataset not found: {}'.format(config.dataset))
 

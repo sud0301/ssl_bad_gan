@@ -125,6 +125,34 @@ class gris_config:
     max_epochs = 1200
     vi_weight = 1e-2
 
+class pr2_config:
+    dataset = 'pr2'
+    #image_size = 3 * 32 * 32
+    image_size = 3 * 32 * 32
+    num_label = 6
+
+    gen_emb_size = 20
+    noise_size = 100
+
+    dis_lr = 6e-4
+    enc_lr = 3e-4
+    gen_lr = 3e-4
+
+    eval_period = 500
+    vis_period = 500
+
+    data_root = 'data'
+
+    size_labeled_data = 1200
+    size_test_data = 1000
+
+    train_batch_size = 100
+    train_batch_size_2 = 100
+    dev_batch_size = 200
+
+    max_epochs = 1200
+    vi_weight = 1e-2
+
 class pixelcnn_config:
     dataset = 'mnist'
     image_wh = 28 if dataset == 'mnist' else 32
