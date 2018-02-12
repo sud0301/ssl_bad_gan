@@ -144,7 +144,7 @@ class pr2_config:
     data_root = 'data'
 
     size_labeled_data = 1200
-    size_test_data = 1000
+    size_test_data = 1200
 
     train_batch_size = 100
     train_batch_size_2 = 100

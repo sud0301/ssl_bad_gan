@@ -79,6 +79,7 @@ class WN_Linear(nn.Linear):
 
         # normalize weight matrix and linear projection
         norm_weight = self.weight * (weight_scale.unsqueeze(1) / torch.sqrt((self.weight ** 2).sum(1) + 1e-6)).expand_as(self.weight)
+        #norm_weight = self.weight * (weight_scale.unsqueeze(1) / torch.sqrt((self.weight ** 2).sum(1, keepdim=True) + 1e-6)).expand_as(self.weight)
         activation = F.linear(input, norm_weight)
 
         if self.init_mode == True:
@@ -134,6 +135,7 @@ class WN_Conv2d(nn.Conv2d):
         # normalize weight matrix and linear projection [out x in x h x w]
         # for each output dimension, normalize through (in, h, w) = (1, 2, 3) dims
         norm_weight = self.weight * (weight_scale[:,None,None,None] / torch.sqrt((self.weight ** 2).sum(3).sum(2).sum(1) + 1e-6)).expand_as(self.weight)
+        #norm_weight = self.weight * (weight_scale[:,None,None,None] / torch.sqrt((self.weight ** 2).sum(3, keepdim=True).sum(2, keepdim=True).sum(1, keepdim=True) + 1e-6)).expand_as(self.weight)
         if old_version:
             bias = self.bias
         else:
@@ -192,6 +194,7 @@ class WN_ConvTranspose2d(nn.ConvTranspose2d):
         # normalize weight matrix and linear projection [in x out x h x w]
         # for each output dimension, normalize through (in, h, w)  = (0, 2, 3) dims
         norm_weight = self.weight * (weight_scale[None,:,None,None] / torch.sqrt((self.weight ** 2).sum(3).sum(2).sum(0) + 1e-6)).expand_as(self.weight)
+        #norm_weight = self.weight * (weight_scale[None,:,None,None] / torch.sqrt((self.weight ** 2).sum(3, keepdim=True).sum(2, keepdim=True).sum(0, keepdim=True) + 1e-6)).expand_as(self.weight)
         output_padding = self._output_padding(input, output_size)
         if old_version:
             bias = self.bias

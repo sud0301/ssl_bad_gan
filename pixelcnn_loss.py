@@ -58,9 +58,11 @@ def discretized_mix_logistic_loss(x, l, sum_all=True):
     mask3 = (x < -0.999).float().detach()
     term3 = mask3 * log_cdf_plus + (1. - mask3) * term2
 
+    #log_probs = term3.sum(3, keepdim=True) + log_prob_from_logits(logit_probs)
     log_probs = term3.sum(3) + log_prob_from_logits(logit_probs)
 
     if not sum_all:
+        #return -log_sum_exp(log_probs).sum(1, keepdim=True).sum(2, keepdim=True).squeeze()
         return -log_sum_exp(log_probs).sum(1).sum(2).squeeze()
     else:
         return -log_sum_exp(log_probs).sum()
@@ -119,10 +121,12 @@ def discretized_mix_logistic_loss_c1(x, l, sum_all=True):
     mask3 = (x < -0.999).float().detach()
     term3 = mask3 * log_cdf_plus + (1. - mask3) * term2
 
+    #log_probs = term3.sum(3, keepdim=True) + log_prob_from_logits(logit_probs)
     log_probs = term3.sum(3) + log_prob_from_logits(logit_probs)
 
     if not sum_all:
         return -log_sum_exp(log_probs).sum(1).sum(2).squeeze()
+        #return -log_sum_exp(log_probs).sum(1, keepdim=True).sum(2, keepdim=True).squeeze()
     else:
         return -log_sum_exp(log_probs).sum()
 
@@ -130,11 +134,13 @@ def log_sum_exp(logits):
     dim = logits.dim() - 1
     max_logits = logits.max(dim)[0]
     return ((logits - max_logits.expand_as(logits)).exp()).sum(dim).log().squeeze() + max_logits.squeeze()
+    #return ((logits - max_logits.expand_as(logits)).exp()).sum(dim, keepdim=True).log().squeeze() + max_logits.squeeze()
 
 def log_prob_from_logits(logits):
     dim = logits.dim() - 1
     max_logits = logits.max(dim)[0].expand_as(logits)
     return logits - max_logits - (logits - max_logits).exp().sum(dim).log().expand_as(logits)
+    #return logits - max_logits - (logits - max_logits).exp().sum(dim, keepdim=True).log().expand_as(logits)
 
 if __name__ == '__main__':
     x = Variable(torch.rand(10, 32, 32, 3))
