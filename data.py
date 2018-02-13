@@ -218,11 +218,12 @@ def get_pr2_loaders(config):
     train_unlabeled_indices_all = np.arange(len(train_unlabeled_set))
     np.random.shuffle(train_unlabeled_indices_all)
    
-    train_unlabeled_indices = train_unlabeled_indices_all[:20000]
+    train_unlabeled_indices = train_unlabeled_indices_all[:35000]
     print ('# UnLabeled indices ', len(train_unlabeled_indices) )
      
 	
     test_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/test_labeled/', transform=transform)   
+    #test_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/test_set_extras/', transform=transform)   
     test_indices = np.arange(len(test_set))
     print ('# Test indices ', len(test_indices))
 	

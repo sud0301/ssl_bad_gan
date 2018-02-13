@@ -1,0 +1,48 @@
+dis_lr : 0.0006
+enc_lr : 0.0003
+gen_lr : 0.0003
+suffix : run0
+dataset : pr2
+save_dir : pr2_log
+data_root : data
+num_label : 6
+vi_weight : 0.01
+image_size : 3072
+max_epochs : 1200
+noise_size : 100
+vis_period : 500
+eval_period : 500
+gen_emb_size : 20
+dev_batch_size : 200
+size_test_data : 1200
+train_batch_size : 100
+size_labeled_data : 1200
+train_batch_size_2 : 100
+# Labeled indices  1200
+# UnLabeled indices  35000
+# Test indices  1512
+===> Init small-conv for pr2
+dis_lr : 0.0006
+enc_lr : 0.0003
+gen_lr : 0.0003
+suffix : run0
+dataset : pr2
+save_dir : pr2_log
+data_root : data
+num_label : 6
+vi_weight : 0.01
+image_size : 3072
+max_epochs : 1200
+noise_size : 100
+vis_period : 500
+eval_period : 500
+gen_emb_size : 20
+dev_batch_size : 200
+size_test_data : 1200
+train_batch_size : 100
+size_labeled_data : 1200
+train_batch_size_2 : 100
+# Labeled indices  1200
+# UnLabeled indices  35000
+# Test indices  1512
+===> Init small-conv for pr2
