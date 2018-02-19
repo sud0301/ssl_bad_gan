@@ -129,7 +129,7 @@ class pr2_config:
     dataset = 'pr2'
     #image_size = 3 * 32 * 32
     image_size = 3 * 32 * 32
-    num_label = 6
+    num_label = 8
 
     gen_emb_size = 20
     noise_size = 100
@@ -138,12 +138,12 @@ class pr2_config:
     enc_lr = 3e-4
     gen_lr = 3e-4
 
-    eval_period = 500
-    vis_period = 500
+    eval_period = 1000
+    vis_period = 1000
 
     data_root = 'data'
 
-    size_labeled_data = 1200
+    size_labeled_data = 2600
     size_test_data = 1200
 
     train_batch_size = 100

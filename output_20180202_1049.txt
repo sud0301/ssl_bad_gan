@@ -1,0 +1,206 @@
+dis_lr : 0.0006
+enc_lr : 0.0003
+gen_lr : 0.0003
+suffix : run0
+dataset : pr2
+save_dir : pr2_log
+data_root : data
+num_label : 6
+vi_weight : 0.01
+image_size : 3072
+max_epochs : 1200
+noise_size : 100
+vis_period : 500
+eval_period : 500
+gen_emb_size : 20
+dev_batch_size : 200
+size_test_data : 1200
+train_batch_size : 100
+size_labeled_data : 1200
+train_batch_size_2 : 100
+dis_lr : 0.0006
+enc_lr : 0.0003
+gen_lr : 0.0003
+suffix : run0
+dataset : pr2
+save_dir : pr2_log
+data_root : data
+num_label : 6
+vi_weight : 0.01
+image_size : 3072
+max_epochs : 1200
+noise_size : 100
+vis_period : 500
+eval_period : 500
+gen_emb_size : 20
+dev_batch_size : 200
+size_test_data : 1200
+train_batch_size : 100
+size_labeled_data : 1200
+train_batch_size_2 : 100
+# Labeled indices  1200
+# UnLabeled indices  10000
+# Test indices  8100
+===> Init small-conv for pr2
+Discriminative (
+  (core_net): Sequential (
+    (0): Sequential (
+      (0): GaussianNoise (
+      )
+      (1): Dropout2d (p=0.2)
+    )
+    (1): WN_Conv2d(3, 96, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (2): LeakyReLU (0.2)
+    (3): WN_Conv2d(96, 96, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (4): LeakyReLU (0.2)
+    (5): WN_Conv2d(96, 96, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+    (6): LeakyReLU (0.2)
+    (7): Dropout (p = 0.5)
+    (8): WN_Conv2d(96, 192, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (9): LeakyReLU (0.2)
+    (10): WN_Conv2d(192, 192, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (11): LeakyReLU (0.2)
+    (12): WN_Conv2d(192, 192, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+    (13): LeakyReLU (0.2)
+    (14): Dropout (p = 0.5)
+    (15): WN_Conv2d(192, 192, kernel_size=(3, 3), stride=(1, 1))
+    (16): LeakyReLU (0.2)
+    (17): WN_Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1))
+    (18): LeakyReLU (0.2)
+    (19): WN_Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1))
+    (20): LeakyReLU (0.2)
+    (21): Expression (
+    )
+  )
+  (out_net): WN_Linear (192 -> 6)
+)
+dis_lr : 0.0006
+enc_lr : 0.0003
+gen_lr : 0.0003
+suffix : run0
+dataset : pr2
+save_dir : pr2_log
+data_root : data
+num_label : 8
+vi_weight : 0.01
+image_size : 3072
+max_epochs : 1200
+noise_size : 100
+vis_period : 1000
+eval_period : 1000
+gen_emb_size : 20
+dev_batch_size : 200
+size_test_data : 1200
+train_batch_size : 100
+size_labeled_data : 1200
+train_batch_size_2 : 100
+# Labeled indices  1200
+# UnLabeled indices  10000
+# Test indices  8100
+===> Init small-conv for pr2
+Discriminative (
+  (core_net): Sequential (
+    (0): Sequential (
+      (0): GaussianNoise (
+      )
+      (1): Dropout2d (p=0.2)
+    )
+    (1): WN_Conv2d(3, 96, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (2): LeakyReLU (0.2)
+    (3): WN_Conv2d(96, 96, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (4): LeakyReLU (0.2)
+    (5): WN_Conv2d(96, 96, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+    (6): LeakyReLU (0.2)
+    (7): Dropout (p = 0.5)
+    (8): WN_Conv2d(96, 192, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (9): LeakyReLU (0.2)
+    (10): WN_Conv2d(192, 192, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (11): LeakyReLU (0.2)
+    (12): WN_Conv2d(192, 192, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+    (13): LeakyReLU (0.2)
+    (14): Dropout (p = 0.5)
+    (15): WN_Conv2d(192, 192, kernel_size=(3, 3), stride=(1, 1))
+    (16): LeakyReLU (0.2)
+    (17): WN_Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1))
+    (18): LeakyReLU (0.2)
+    (19): WN_Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1))
+    (20): LeakyReLU (0.2)
+    (21): Expression (
+    )
+  )
+  (out_net): WN_Linear (192 -> 8)
+)
+#0	train: 2.1233, 0.8375 | dev: 2.0412, 0.8660 | best: 0.8660 | unl acc: 0.0010 | gen acc: 0.0010 | max unl acc: 0.0010 | max gen acc: 0.0010 | lab loss: 0.0021 | unl loss: 0.0012 | fm loss: 0.0002 | vi loss: 0.0177 | [Eval] unl acc: 1.0000, gen acc: 1.0000, max unl acc: 0.9985, max gen acc: 1.0000 | lr: 0.00060
+#1000	train: 0.7491, 0.2475 | dev: 3.3629, 0.7475 | best: 0.7475 | unl acc: 0.7559 | gen acc: 0.1928 | max unl acc: 0.5648 | max gen acc: 0.0770 | lab loss: 1.0822 | unl loss: 0.4659 | fm loss: 0.7647 | vi loss: -82.3794 | [Eval] unl acc: 0.6760, gen acc: 0.1900, max unl acc: 0.5985, max gen acc: 0.1560 | lr: 0.00060
+#2000	train: 1.8847, 0.7283 | dev: 2.1593, 0.8177 | best: 0.7475 | unl acc: 0.7879 | gen acc: 0.1381 | max unl acc: 0.6171 | max gen acc: 0.0713 | lab loss: 10.8830 | unl loss: 2.7315 | fm loss: 2.1236 | vi loss: -144.6089 | [Eval] unl acc: 0.3330, gen acc: 0.0045, max unl acc: 0.1365, max gen acc: 0.0000 | lr: 0.00060
+#3000	train: 1.7034, 0.6450 | dev: 2.7489, 0.9037 | best: 0.7475 | unl acc: 0.7171 | gen acc: 0.1573 | max unl acc: 0.4477 | max gen acc: 0.0270 | lab loss: 1.5534 | unl loss: 0.4834 | fm loss: 0.5389 | vi loss: -200.5090 | [Eval] unl acc: 0.6355, gen acc: 0.1150, max unl acc: 0.4040, max gen acc: 0.0195 | lr: 0.00060
+#4000	train: 1.0438, 0.3658 | dev: 2.8058, 0.7977 | best: 0.7475 | unl acc: 0.7662 | gen acc: 0.1173 | max unl acc: 0.5344 | max gen acc: 0.0269 | lab loss: 1.1177 | unl loss: 0.4310 | fm loss: 0.4863 | vi loss: -221.7950 | [Eval] unl acc: 0.9490, gen acc: 0.4160, max unl acc: 0.8580, max gen acc: 0.2310 | lr: 0.00060
+#5000	train: 0.4491, 0.1567 | dev: 2.6623, 0.7049 | best: 0.7049 | unl acc: 0.8314 | gen acc: 0.1031 | max unl acc: 0.7181 | max gen acc: 0.0491 | lab loss: 0.6866 | unl loss: 0.3330 | fm loss: 0.7842 | vi loss: -229.1711 | [Eval] unl acc: 0.9755, gen acc: 0.5330, max unl acc: 0.9475, max gen acc: 0.3065 | lr: 0.00060
+#6000	train: 0.1900, 0.0617 | dev: 2.9515, 0.6635 | best: 0.6635 | unl acc: 0.8576 | gen acc: 0.0973 | max unl acc: 0.7975 | max gen acc: 0.0637 | lab loss: 0.3526 | unl loss: 0.2862 | fm loss: 1.1169 | vi loss: -234.5923 | [Eval] unl acc: 0.9905, gen acc: 0.5430, max unl acc: 0.9835, max gen acc: 0.4230 | lr: 0.00060
+#7000	train: 0.1307, 0.0358 | dev: 3.3939, 0.6915 | best: 0.6635 | unl acc: 0.8700 | gen acc: 0.0962 | max unl acc: 0.8287 | max gen acc: 0.0700 | lab loss: 0.1926 | unl loss: 0.2678 | fm loss: 1.3586 | vi loss: -239.6725 | [Eval] unl acc: 0.8945, gen acc: 0.2450, max unl acc: 0.8650, max gen acc: 0.2110 | lr: 0.00060
+#8000	train: 0.0651, 0.0183 | dev: 3.8094, 0.7007 | best: 0.6635 | unl acc: 0.8750 | gen acc: 0.0926 | max unl acc: 0.8388 | max gen acc: 0.0705 | lab loss: 0.1300 | unl loss: 0.2587 | fm loss: 1.4699 | vi loss: -243.5871 | [Eval] unl acc: 0.9755, gen acc: 0.3690, max unl acc: 0.9605, max gen acc: 0.3135 | lr: 0.00060
+#9000	train: 0.0330, 0.0092 | dev: 3.2303, 0.6096 | best: 0.6096 | unl acc: 0.8824 | gen acc: 0.0879 | max unl acc: 0.8502 | max gen acc: 0.0678 | lab loss: 0.0998 | unl loss: 0.2471 | fm loss: 1.5032 | vi loss: -247.8939 | [Eval] unl acc: 0.9370, gen acc: 0.1405, max unl acc: 0.9250, max gen acc: 0.1205 | lr: 0.00060
+#10000	train: 0.0170, 0.0042 | dev: 3.8182, 0.6414 | best: 0.6096 | unl acc: 0.8730 | gen acc: 0.0960 | max unl acc: 0.8332 | max gen acc: 0.0713 | lab loss: 0.1519 | unl loss: 0.2716 | fm loss: 1.3948 | vi loss: -251.8864 | [Eval] unl acc: 0.9790, gen acc: 0.3910, max unl acc: 0.9715, max gen acc: 0.3240 | lr: 0.00060
+#11000	train: 0.0146, 0.0025 | dev: 3.5407, 0.6379 | best: 0.6096 | unl acc: 0.8852 | gen acc: 0.0850 | max unl acc: 0.8527 | max gen acc: 0.0642 | lab loss: 0.0712 | unl loss: 0.2406 | fm loss: 1.4635 | vi loss: -254.1607 | [Eval] unl acc: 0.8930, gen acc: 0.0535, max unl acc: 0.8770, max gen acc: 0.0450 | lr: 0.00060
+#12000	train: 0.0137, 0.0025 | dev: 3.7725, 0.6390 | best: 0.6096 | unl acc: 0.8866 | gen acc: 0.0854 | max unl acc: 0.8566 | max gen acc: 0.0645 | lab loss: 0.0695 | unl loss: 0.2401 | fm loss: 1.4718 | vi loss: -257.0634 | [Eval] unl acc: 0.9310, gen acc: 0.0830, max unl acc: 0.9090, max gen acc: 0.0700 | lr: 0.00060
+#13000	train: 1.8401, 0.6217 | dev: 2.2120, 0.7622 | best: 0.6096 | unl acc: 0.8729 | gen acc: 0.1144 | max unl acc: 0.7730 | max gen acc: 0.0745 | lab loss: 13.0269 | unl loss: 5.2512 | fm loss: 2.7343 | vi loss: -14.8817 | [Eval] unl acc: 0.4690, gen acc: 0.0000, max unl acc: 0.2250, max gen acc: 0.0000 | lr: 0.00060
+#14000	train: 1.4086, 0.4992 | dev: 1.9896, 0.6836 | best: 0.6096 | unl acc: 0.8927 | gen acc: 0.0659 | max unl acc: 0.7282 | max gen acc: 0.0161 | lab loss: 1.5329 | unl loss: 0.2538 | fm loss: 1.2408 | vi loss: -140.3205 | [Eval] unl acc: 0.7035, gen acc: 0.0000, max unl acc: 0.5710, max gen acc: 0.0000 | lr: 0.00060
+#15000	train: 0.8920, 0.3200 | dev: 2.3284, 0.7114 | best: 0.6096 | unl acc: 0.9276 | gen acc: 0.0453 | max unl acc: 0.8496 | max gen acc: 0.0164 | lab loss: 1.1365 | unl loss: 0.1713 | fm loss: 1.6120 | vi loss: -202.2860 | [Eval] unl acc: 0.7375, gen acc: 0.0000, max unl acc: 0.6645, max gen acc: 0.0000 | lr: 0.00060
+#16000	train: 0.4747, 0.1508 | dev: 2.5962, 0.6517 | best: 0.6096 | unl acc: 0.8919 | gen acc: 0.0723 | max unl acc: 0.8350 | max gen acc: 0.0372 | lab loss: 0.7414 | unl loss: 0.2285 | fm loss: 1.4639 | vi loss: -239.5240 | [Eval] unl acc: 0.9170, gen acc: 0.1745, max unl acc: 0.8855, max gen acc: 0.1260 | lr: 0.00060
+#17000	train: 0.1657, 0.0575 | dev: 3.2325, 0.6149 | best: 0.6096 | unl acc: 0.8980 | gen acc: 0.0676 | max unl acc: 0.8581 | max gen acc: 0.0432 | lab loss: 0.3718 | unl loss: 0.2103 | fm loss: 1.5767 | vi loss: -250.0915 | [Eval] unl acc: 0.8780, gen acc: 0.1350, max unl acc: 0.8570, max gen acc: 0.1075 | lr: 0.00060
+#18000	train: 0.0603, 0.0192 | dev: 4.1231, 0.6196 | best: 0.6096 | unl acc: 0.9036 | gen acc: 0.0609 | max unl acc: 0.8749 | max gen acc: 0.0448 | lab loss: 0.1789 | unl loss: 0.1954 | fm loss: 1.7524 | vi loss: -254.6735 | [Eval] unl acc: 0.9690, gen acc: 0.3510, max unl acc: 0.9620, max gen acc: 0.3015 | lr: 0.00060
+#19000	train: 0.0478, 0.0150 | dev: 4.3385, 0.6179 | best: 0.6096 | unl acc: 0.9087 | gen acc: 0.0589 | max unl acc: 0.8853 | max gen acc: 0.0452 | lab loss: 0.1128 | unl loss: 0.1866 | fm loss: 1.8065 | vi loss: -257.1739 | [Eval] unl acc: 0.9765, gen acc: 0.3375, max unl acc: 0.9685, max gen acc: 0.2835 | lr: 0.00060
+#20000	train: 0.0177, 0.0050 | dev: 3.6842, 0.6164 | best: 0.6096 | unl acc: 0.9163 | gen acc: 0.0574 | max unl acc: 0.8945 | max gen acc: 0.0445 | lab loss: 0.0810 | unl loss: 0.1759 | fm loss: 2.0511 | vi loss: -258.5263 | [Eval] unl acc: 0.9725, gen acc: 0.2400, max unl acc: 0.9645, max gen acc: 0.2025 | lr: 0.00060
+#21000	train: 0.0151, 0.0025 | dev: 4.0374, 0.6320 | best: 0.6096 | unl acc: 0.9167 | gen acc: 0.0601 | max unl acc: 0.8942 | max gen acc: 0.0458 | lab loss: 0.0647 | unl loss: 0.1770 | fm loss: 2.0958 | vi loss: -260.0239 | [Eval] unl acc: 0.9530, gen acc: 0.2165, max unl acc: 0.9415, max gen acc: 0.1980 | lr: 0.00060
+#22000	train: 0.7070, 0.2550 | dev: 2.1904, 0.7148 | best: 0.6096 | unl acc: 0.7598 | gen acc: 0.1974 | max unl acc: 0.5672 | max gen acc: 0.0664 | lab loss: 4.3754 | unl loss: 1.3734 | fm loss: 1.3024 | vi loss: -259.9867 | [Eval] unl acc: 0.7100, gen acc: 0.1130, max unl acc: 0.5105, max gen acc: 0.0445 | lr: 0.00060
+#23000	train: 0.1238, 0.0383 | dev: 2.8692, 0.6114 | best: 0.6096 | unl acc: 0.7528 | gen acc: 0.1922 | max unl acc: 0.6271 | max gen acc: 0.1053 | lab loss: 0.4789 | unl loss: 0.4672 | fm loss: 0.5315 | vi loss: -265.5406 | [Eval] unl acc: 0.9410, gen acc: 0.4670, max unl acc: 0.9015, max gen acc: 0.3520 | lr: 0.00060
+#24000	train: 0.0583, 0.0217 | dev: 3.6921, 0.6278 | best: 0.6096 | unl acc: 0.8179 | gen acc: 0.1320 | max unl acc: 0.7654 | max gen acc: 0.0993 | lab loss: 0.1545 | unl loss: 0.3553 | fm loss: 0.8339 | vi loss: -265.1768 | [Eval] unl acc: 0.9350, gen acc: 0.2780, max unl acc: 0.9055, max gen acc: 0.2395 | lr: 0.00060
+#25000	train: 0.0256, 0.0075 | dev: 4.0359, 0.6372 | best: 0.6096 | unl acc: 0.8481 | gen acc: 0.1109 | max unl acc: 0.8089 | max gen acc: 0.0878 | lab loss: 0.0862 | unl loss: 0.3033 | fm loss: 1.0404 | vi loss: -264.1825 | [Eval] unl acc: 0.9155, gen acc: 0.1450, max unl acc: 0.8985, max gen acc: 0.1290 | lr: 0.00060
+#26000	train: 0.0196, 0.0067 | dev: 4.0988, 0.6317 | best: 0.6096 | unl acc: 0.8745 | gen acc: 0.0917 | max unl acc: 0.8416 | max gen acc: 0.0725 | lab loss: 0.0663 | unl loss: 0.2546 | fm loss: 1.2889 | vi loss: -263.6591 | [Eval] unl acc: 0.9755, gen acc: 0.4200, max unl acc: 0.9675, max gen acc: 0.3645 | lr: 0.00060
+#27000	train: 0.0074, 0.0000 | dev: 3.7112, 0.6249 | best: 0.6096 | unl acc: 0.8875 | gen acc: 0.0835 | max unl acc: 0.8581 | max gen acc: 0.0653 | lab loss: 0.0579 | unl loss: 0.2330 | fm loss: 1.3918 | vi loss: -263.6799 | [Eval] unl acc: 0.9415, gen acc: 0.2700, max unl acc: 0.9260, max gen acc: 0.2210 | lr: 0.00060
+#28000	train: 0.0112, 0.0025 | dev: 3.9974, 0.6354 | best: 0.6096 | unl acc: 0.8936 | gen acc: 0.0771 | max unl acc: 0.8676 | max gen acc: 0.0605 | lab loss: 0.0500 | unl loss: 0.2229 | fm loss: 1.5084 | vi loss: -264.4738 | [Eval] unl acc: 0.9115, gen acc: 0.2715, max unl acc: 0.8940, max gen acc: 0.2410 | lr: 0.00060
+#29000	train: 0.0324, 0.0083 | dev: 3.3331, 0.5911 | best: 0.5911 | unl acc: 0.8944 | gen acc: 0.0790 | max unl acc: 0.8669 | max gen acc: 0.0626 | lab loss: 0.0473 | unl loss: 0.2245 | fm loss: 1.5251 | vi loss: -264.9491 | [Eval] unl acc: 0.9860, gen acc: 0.5820, max unl acc: 0.9820, max gen acc: 0.5230 | lr: 0.00060
+#30000	train: 0.0094, 0.0025 | dev: 3.8333, 0.6283 | best: 0.5911 | unl acc: 0.8989 | gen acc: 0.0771 | max unl acc: 0.8734 | max gen acc: 0.0611 | lab loss: 0.0454 | unl loss: 0.2146 | fm loss: 1.5707 | vi loss: -265.9170 | [Eval] unl acc: 0.9040, gen acc: 0.1640, max unl acc: 0.8870, max gen acc: 0.1480 | lr: 0.00060
+#31000	train: 0.0072, 0.0017 | dev: 3.7026, 0.6230 | best: 0.5911 | unl acc: 0.8967 | gen acc: 0.0775 | max unl acc: 0.8712 | max gen acc: 0.0612 | lab loss: 0.0496 | unl loss: 0.2199 | fm loss: 1.5456 | vi loss: -267.0072 | [Eval] unl acc: 0.9495, gen acc: 0.2605, max unl acc: 0.9380, max gen acc: 0.2195 | lr: 0.00060
+#32000	train: 0.7826, 0.2667 | dev: 2.1687, 0.7248 | best: 0.5911 | unl acc: 0.8267 | gen acc: 0.1476 | max unl acc: 0.6389 | max gen acc: 0.0617 | lab loss: 3.1287 | unl loss: 1.4497 | fm loss: 1.5683 | vi loss: -117.3120 | [Eval] unl acc: 0.9815, gen acc: 0.4585, max unl acc: 0.8440, max gen acc: 0.1065 | lr: 0.00060
+#33000	train: 0.0758, 0.0200 | dev: 3.1771, 0.6078 | best: 0.5911 | unl acc: 0.8392 | gen acc: 0.1130 | max unl acc: 0.7641 | max gen acc: 0.0703 | lab loss: 0.4471 | unl loss: 0.3228 | fm loss: 1.1570 | vi loss: -218.0001 | [Eval] unl acc: 0.9235, gen acc: 0.3295, max unl acc: 0.9065, max gen acc: 0.2725 | lr: 0.00060
+#34000	train: 0.0804, 0.0242 | dev: 3.6557, 0.6163 | best: 0.5911 | unl acc: 0.8713 | gen acc: 0.0897 | max unl acc: 0.8371 | max gen acc: 0.0698 | lab loss: 0.1076 | unl loss: 0.2608 | fm loss: 1.4169 | vi loss: -258.4712 | [Eval] unl acc: 0.9645, gen acc: 0.4965, max unl acc: 0.9550, max gen acc: 0.4450 | lr: 0.00060
+#35000	train: 0.0366, 0.0125 | dev: 3.7792, 0.5915 | best: 0.5911 | unl acc: 0.8879 | gen acc: 0.0794 | max unl acc: 0.8589 | max gen acc: 0.0623 | lab loss: 0.0618 | unl loss: 0.2302 | fm loss: 1.5030 | vi loss: -264.6127 | [Eval] unl acc: 0.9670, gen acc: 0.3940, max unl acc: 0.9540, max gen acc: 0.3590 | lr: 0.00060
+#36000	train: 0.0221, 0.0075 | dev: 3.9567, 0.6138 | best: 0.5911 | unl acc: 0.9019 | gen acc: 0.0703 | max unl acc: 0.8760 | max gen acc: 0.0555 | lab loss: 0.0468 | unl loss: 0.2040 | fm loss: 1.6624 | vi loss: -267.5879 | [Eval] unl acc: 0.9745, gen acc: 0.4535, max unl acc: 0.9680, max gen acc: 0.4025 | lr: 0.00060
+#37000	train: 0.0136, 0.0042 | dev: 3.5950, 0.6098 | best: 0.5911 | unl acc: 0.9062 | gen acc: 0.0673 | max unl acc: 0.8835 | max gen acc: 0.0532 | lab loss: 0.0420 | unl loss: 0.1964 | fm loss: 1.8031 | vi loss: -267.8227 | [Eval] unl acc: 0.9565, gen acc: 0.3140, max unl acc: 0.9430, max gen acc: 0.2735 | lr: 0.00060
+#38000	train: 0.0182, 0.0042 | dev: 3.7685, 0.6296 | best: 0.5911 | unl acc: 0.9114 | gen acc: 0.0644 | max unl acc: 0.8899 | max gen acc: 0.0504 | lab loss: 0.0397 | unl loss: 0.1878 | fm loss: 1.8130 | vi loss: -267.8880 | [Eval] unl acc: 0.9420, gen acc: 0.2270, max unl acc: 0.9250, max gen acc: 0.1825 | lr: 0.00060
+#39000	train: 0.0093, 0.0025 | dev: 3.8861, 0.6227 | best: 0.5911 | unl acc: 0.9158 | gen acc: 0.0636 | max unl acc: 0.8938 | max gen acc: 0.0500 | lab loss: 0.0361 | unl loss: 0.1808 | fm loss: 1.8268 | vi loss: -268.4727 | [Eval] unl acc: 0.9750, gen acc: 0.4605, max unl acc: 0.9650, max gen acc: 0.3980 | lr: 0.00060
+#40000	train: 0.0074, 0.0000 | dev: 3.8151, 0.6478 | best: 0.5911 | unl acc: 0.8946 | gen acc: 0.0833 | max unl acc: 0.8642 | max gen acc: 0.0634 | lab loss: 0.0910 | unl loss: 0.2308 | fm loss: 1.5360 | vi loss: -268.6235 | [Eval] unl acc: 0.8680, gen acc: 0.1070, max unl acc: 0.8485, max gen acc: 0.0915 | lr: 0.00060
+#41000	train: 0.0183, 0.0050 | dev: 3.9575, 0.6009 | best: 0.5911 | unl acc: 0.9190 | gen acc: 0.0615 | max unl acc: 0.8982 | max gen acc: 0.0481 | lab loss: 0.0321 | unl loss: 0.1762 | fm loss: 1.7733 | vi loss: -268.1892 | [Eval] unl acc: 0.9810, gen acc: 0.5510, max unl acc: 0.9750, max gen acc: 0.4855 | lr: 0.00060
+#42000	train: 0.0144, 0.0058 | dev: 3.3015, 0.5912 | best: 0.5911 | unl acc: 0.9171 | gen acc: 0.0652 | max unl acc: 0.8955 | max gen acc: 0.0511 | lab loss: 0.0340 | unl loss: 0.1811 | fm loss: 1.7129 | vi loss: -269.1223 | [Eval] unl acc: 0.9790, gen acc: 0.3700, max unl acc: 0.9710, max gen acc: 0.3130 | lr: 0.00060
+#43000	train: 1.8083, 0.6733 | dev: 2.4277, 0.9147 | best: 0.5911 | unl acc: 0.9008 | gen acc: 0.1071 | max unl acc: 0.8406 | max gen acc: 0.0611 | lab loss: 0.9112 | unl loss: 0.4687 | fm loss: 1.7221 | vi loss: -267.9814 | [Eval] unl acc: 0.8725, gen acc: 0.9065, max unl acc: 0.1825, max gen acc: 0.0845 | lr: 0.00060
+#44000	train: 0.0353, 0.0075 | dev: 3.0907, 0.5975 | best: 0.5911 | unl acc: 0.7232 | gen acc: 0.2229 | max unl acc: 0.5791 | max gen acc: 0.1105 | lab loss: 0.4816 | unl loss: 0.4968 | fm loss: 0.5521 | vi loss: -272.2546 | [Eval] unl acc: 0.9665, gen acc: 0.6920, max unl acc: 0.9525, max gen acc: 0.5955 | lr: 0.00060
+#45000	train: 0.0120, 0.0017 | dev: 3.6989, 0.6084 | best: 0.5911 | unl acc: 0.8476 | gen acc: 0.1171 | max unl acc: 0.8030 | max gen acc: 0.0890 | lab loss: 0.0614 | unl loss: 0.3076 | fm loss: 1.0272 | vi loss: -269.9718 | [Eval] unl acc: 0.9845, gen acc: 0.7980, max unl acc: 0.9750, max gen acc: 0.7440 | lr: 0.00060
+#46000	train: 0.0136, 0.0042 | dev: 3.9556, 0.6109 | best: 0.5911 | unl acc: 0.8855 | gen acc: 0.0891 | max unl acc: 0.8535 | max gen acc: 0.0693 | lab loss: 0.0388 | unl loss: 0.2406 | fm loss: 1.3175 | vi loss: -268.6196 | [Eval] unl acc: 0.9785, gen acc: 0.7505, max unl acc: 0.9760, max gen acc: 0.7205 | lr: 0.00060
+#47000	train: 0.0071, 0.0008 | dev: 3.6449, 0.5735 | best: 0.5735 | unl acc: 0.9012 | gen acc: 0.0769 | max unl acc: 0.8746 | max gen acc: 0.0608 | lab loss: 0.0338 | unl loss: 0.2116 | fm loss: 1.5334 | vi loss: -268.6062 | [Eval] unl acc: 0.9910, gen acc: 0.6875, max unl acc: 0.9855, max gen acc: 0.6335 | lr: 0.00060
+#48000	train: 0.0197, 0.0058 | dev: 3.4618, 0.5785 | best: 0.5735 | unl acc: 0.9118 | gen acc: 0.0699 | max unl acc: 0.8887 | max gen acc: 0.0551 | lab loss: 0.0326 | unl loss: 0.1908 | fm loss: 1.6328 | vi loss: -269.0849 | [Eval] unl acc: 0.9840, gen acc: 0.7295, max unl acc: 0.9820, max gen acc: 0.6805 | lr: 0.00060
+#49000	train: 0.0068, 0.0008 | dev: 3.1771, 0.5565 | best: 0.5565 | unl acc: 0.9183 | gen acc: 0.0650 | max unl acc: 0.8974 | max gen acc: 0.0515 | lab loss: 0.0296 | unl loss: 0.1778 | fm loss: 1.6664 | vi loss: -270.3442 | [Eval] unl acc: 0.8860, gen acc: 0.1065, max unl acc: 0.8715, max gen acc: 0.0885 | lr: 0.00060
+#50000	train: 0.0077, 0.0008 | dev: 4.6163, 0.6167 | best: 0.5565 | unl acc: 0.9226 | gen acc: 0.0602 | max unl acc: 0.9043 | max gen acc: 0.0487 | lab loss: 0.0297 | unl loss: 0.1679 | fm loss: 1.7092 | vi loss: -270.4792 | [Eval] unl acc: 0.9740, gen acc: 0.4495, max unl acc: 0.9630, max gen acc: 0.3880 | lr: 0.00060
+#51000	train: 0.0030, 0.0000 | dev: 3.9564, 0.5968 | best: 0.5565 | unl acc: 0.9097 | gen acc: 0.0748 | max unl acc: 0.8851 | max gen acc: 0.0586 | lab loss: 0.0664 | unl loss: 0.2039 | fm loss: 1.5657 | vi loss: -271.6193 | [Eval] unl acc: 0.9300, gen acc: 0.1870, max unl acc: 0.9175, max gen acc: 0.1590 | lr: 0.00060
+#52000	train: 0.0051, 0.0008 | dev: 4.0291, 0.5801 | best: 0.5565 | unl acc: 0.9307 | gen acc: 0.0563 | max unl acc: 0.9110 | max gen acc: 0.0437 | lab loss: 0.0267 | unl loss: 0.1556 | fm loss: 1.7081 | vi loss: -271.3150 | [Eval] unl acc: 0.9755, gen acc: 0.6330, max unl acc: 0.9745, max gen acc: 0.5950 | lr: 0.00060
+#53000	train: 0.0036, 0.0000 | dev: 3.7588, 0.5865 | best: 0.5565 | unl acc: 0.9337 | gen acc: 0.0530 | max unl acc: 0.9178 | max gen acc: 0.0426 | lab loss: 0.0274 | unl loss: 0.1466 | fm loss: 1.7400 | vi loss: -271.8662 | [Eval] unl acc: 0.9450, gen acc: 0.2905, max unl acc: 0.9300, max gen acc: 0.2535 | lr: 0.00060
+#54000	train: 0.0060, 0.0017 | dev: 3.9237, 0.5796 | best: 0.5565 | unl acc: 0.9359 | gen acc: 0.0515 | max unl acc: 0.9202 | max gen acc: 0.0410 | lab loss: 0.0261 | unl loss: 0.1428 | fm loss: 1.7091 | vi loss: -272.5700 | [Eval] unl acc: 0.9590, gen acc: 0.3560, max unl acc: 0.9520, max gen acc: 0.3195 | lr: 0.00060
+#55000	train: 0.0066, 0.0008 | dev: 3.5526, 0.5781 | best: 0.5565 | unl acc: 0.9399 | gen acc: 0.0497 | max unl acc: 0.9241 | max gen acc: 0.0395 | lab loss: 0.0256 | unl loss: 0.1375 | fm loss: 1.6615 | vi loss: -273.0201 | [Eval] unl acc: 0.9295, gen acc: 0.1530, max unl acc: 0.9200, max gen acc: 0.1435 | lr: 0.00060
+#56000	train: 0.0056, 0.0017 | dev: 3.8919, 0.5867 | best: 0.5565 | unl acc: 0.9404 | gen acc: 0.0474 | max unl acc: 0.9273 | max gen acc: 0.0385 | lab loss: 0.0248 | unl loss: 0.1322 | fm loss: 1.6249 | vi loss: -273.1237 | [Eval] unl acc: 0.9480, gen acc: 0.2385, max unl acc: 0.9420, max gen acc: 0.2050 | lr: 0.00060
+#57000	train: 0.0043, 0.0017 | dev: 3.7761, 0.5568 | best: 0.5565 | unl acc: 0.9443 | gen acc: 0.0474 | max unl acc: 0.9282 | max gen acc: 0.0368 | lab loss: 0.0257 | unl loss: 0.1293 | fm loss: 1.5620 | vi loss: -273.7851 | [Eval] unl acc: 0.9765, gen acc: 0.4995, max unl acc: 0.9700, max gen acc: 0.4605 | lr: 0.00060
+#58000	train: 0.0043, 0.0008 | dev: 4.1368, 0.5879 | best: 0.5565 | unl acc: 0.9465 | gen acc: 0.0472 | max unl acc: 0.9317 | max gen acc: 0.0368 | lab loss: 0.0242 | unl loss: 0.1236 | fm loss: 1.5575 | vi loss: -274.1510 | [Eval] unl acc: 0.9650, gen acc: 0.4115, max unl acc: 0.9585, max gen acc: 0.3700 | lr: 0.00060
+#59000	train: 0.0018, 0.0000 | dev: 3.7174, 0.5691 | best: 0.5565 | unl acc: 0.9465 | gen acc: 0.0433 | max unl acc: 0.9334 | max gen acc: 0.0350 | lab loss: 0.0235 | unl loss: 0.1204 | fm loss: 1.5166 | vi loss: -274.4912 | [Eval] unl acc: 0.9845, gen acc: 0.5230, max unl acc: 0.9810, max gen acc: 0.4830 | lr: 0.00060
+#60000	train: 0.0068, 0.0008 | dev: 3.8328, 0.5743 | best: 0.5565 | unl acc: 0.9489 | gen acc: 0.0413 | max unl acc: 0.9377 | max gen acc: 0.0339 | lab loss: 0.0239 | unl loss: 0.1152 | fm loss: 1.4767 | vi loss: -274.6686 | [Eval] unl acc: 0.9555, gen acc: 0.2190, max unl acc: 0.9475, max gen acc: 0.1955 | lr: 0.00060
+#61000	train: 0.0049, 0.0017 | dev: 4.3373, 0.5846 | best: 0.5565 | unl acc: 0.9496 | gen acc: 0.0404 | max unl acc: 0.9393 | max gen acc: 0.0329 | lab loss: 0.0247 | unl loss: 0.1130 | fm loss: 1.4363 | vi loss: -275.1317 | [Eval] unl acc: 0.9550, gen acc: 0.3515, max unl acc: 0.9490, max gen acc: 0.3225 | lr: 0.00060
+#62000	train: 0.0041, 0.0008 | dev: 3.9858, 0.5747 | best: 0.5565 | unl acc: 0.9532 | gen acc: 0.0384 | max unl acc: 0.9427 | max gen acc: 0.0309 | lab loss: 0.0230 | unl loss: 0.1058 | fm loss: 1.4157 | vi loss: -275.3584 | [Eval] unl acc: 0.9665, gen acc: 0.4545, max unl acc: 0.9615, max gen acc: 0.4160 | lr: 0.00060
+#63000	train: 0.0023, 0.0008 | dev: 3.9819, 0.5763 | best: 0.5565 | unl acc: 0.9562 | gen acc: 0.0369 | max unl acc: 0.9450 | max gen acc: 0.0294 | lab loss: 0.0224 | unl loss: 0.1023 | fm loss: 1.3876 | vi loss: -275.7835 | [Eval] unl acc: 0.9460, gen acc: 0.2165, max unl acc: 0.9400, max gen acc: 0.1970 | lr: 0.00060
+#64000	train: 0.0129, 0.0033 | dev: 3.5574, 0.5457 | best: 0.5457 | unl acc: 0.9554 | gen acc: 0.0361 | max unl acc: 0.9458 | max gen acc: 0.0293 | lab loss: 0.0231 | unl loss: 0.1014 | fm loss: 1.3668 | vi loss: -276.0841 | [Eval] unl acc: 0.9765, gen acc: 0.5520, max unl acc: 0.9730, max gen acc: 0.5115 | lr: 0.00060
+#65000	train: 0.0019, 0.0000 | dev: 3.8712, 0.5709 | best: 0.5457 | unl acc: 0.9572 | gen acc: 0.0343 | max unl acc: 0.9477 | max gen acc: 0.0281 | lab loss: 0.0233 | unl loss: 0.0976 | fm loss: 1.3452 | vi loss: -276.5655 | [Eval] unl acc: 0.9580, gen acc: 0.2975, max unl acc: 0.9550, max gen acc: 0.2760 | lr: 0.00060
+#66000	train: 0.0043, 0.0008 | dev: 4.7413, 0.6240 | best: 0.5457 | unl acc: 0.9582 | gen acc: 0.0361 | max unl acc: 0.9470 | max gen acc: 0.0285 | lab loss: 0.0236 | unl loss: 0.0976 | fm loss: 1.3186 | vi loss: -276.6481 | [Eval] unl acc: 0.9420, gen acc: 0.2880, max unl acc: 0.9350, max gen acc: 0.2605 | lr: 0.00060
+#67000	train: 0.0039, 0.0017 | dev: 4.0338, 0.5780 | best: 0.5457 | unl acc: 0.9590 | gen acc: 0.0323 | max unl acc: 0.9512 | max gen acc: 0.0264 | lab loss: 0.0214 | unl loss: 0.0917 | fm loss: 1.2922 | vi loss: -277.0996 | [Eval] unl acc: 0.9795, gen acc: 0.3640, max unl acc: 0.9760, max gen acc: 0.3350 | lr: 0.00060
+#68000	train: 0.0056, 0.0017 | dev: 4.1622, 0.5651 | best: 0.5457 | unl acc: 0.9609 | gen acc: 0.0326 | max unl acc: 0.9514 | max gen acc: 0.0260 | lab loss: 0.0225 | unl loss: 0.0906 | fm loss: 1.2889 | vi loss: -277.0042 | [Eval] unl acc: 0.9635, gen acc: 0.3900, max unl acc: 0.9570, max gen acc: 0.3580 | lr: 0.00060
+#69000	train: 0.0105, 0.0058 | dev: 4.0902, 0.5763 | best: 0.5457 | unl acc: 0.9642 | gen acc: 0.0321 | max unl acc: 0.9545 | max gen acc: 0.0248 | lab loss: 0.0221 | unl loss: 0.0860 | fm loss: 1.2750 | vi loss: -277.3177 | [Eval] unl acc: 0.9580, gen acc: 0.3620, max unl acc: 0.9535, max gen acc: 0.3230 | lr: 0.00060
+#70000	train: 0.0024, 0.0008 | dev: 4.7178, 0.6009 | best: 0.5457 | unl acc: 0.9641 | gen acc: 0.0308 | max unl acc: 0.9550 | max gen acc: 0.0238 | lab loss: 0.0221 | unl loss: 0.0840 | fm loss: 1.2807 | vi loss: -277.7914 | [Eval] unl acc: 0.9660, gen acc: 0.2965, max unl acc: 0.9610, max gen acc: 0.2660 | lr: 0.00060
+#71000	train: 0.0012, 0.0000 | dev: 4.3766, 0.5812 | best: 0.5457 | unl acc: 0.9641 | gen acc: 0.0322 | max unl acc: 0.9542 | max gen acc: 0.0246 | lab loss: 0.0216 | unl loss: 0.0853 | fm loss: 1.2380 | vi loss: -278.2037 | [Eval] unl acc: 0.9230, gen acc: 0.1125, max unl acc: 0.9150, max gen acc: 0.0945 | lr: 0.00060
+#72000	train: 0.0021, 0.0000 | dev: 4.7952, 0.5952 | best: 0.5457 | unl acc: 0.9643 | gen acc: 0.0294 | max unl acc: 0.9564 | max gen acc: 0.0235 | lab loss: 0.0207 | unl loss: 0.0818 | fm loss: 1.2247 | vi loss: -278.4736 | [Eval] unl acc: 0.9815, gen acc: 0.4495, max unl acc: 0.9765, max gen acc: 0.4070 | lr: 0.00060
+#73000	train: 0.0107, 0.0025 | dev: 4.3015, 0.5606 | best: 0.5457 | unl acc: 0.9659 | gen acc: 0.0289 | max unl acc: 0.9575 | max gen acc: 0.0225 | lab loss: 0.0218 | unl loss: 0.0793 | fm loss: 1.2164 | vi loss: -278.5718 | [Eval] unl acc: 0.9645, gen acc: 0.2990, max unl acc: 0.9610, max gen acc: 0.2710 | lr: 0.00060

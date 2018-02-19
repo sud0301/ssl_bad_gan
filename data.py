@@ -200,29 +200,45 @@ def get_gris_loaders(config):
 def get_pr2_loaders(config):
     transform = transforms.Compose([transforms.Resize(size=(32, 32), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
     
-    train_labeled_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/train_labeled/', transform=transform)   
+    train_labeled_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/dataset_splits/20180216_clean/train_labeled/', transform=transform)   
  
     train_labeled_indices = np.arange(len(train_labeled_set))
     np.random.shuffle(train_labeled_indices)
     mask = np.zeros(train_labeled_indices.shape[0], dtype=np.bool)
     labels = np.array([train_labeled_set[i][1] for i in train_labeled_indices], dtype=np.int64)
-    for i in range(6):
-        mask[np.where(labels == i)[0][: int(config.size_labeled_data / 6)]] = True
+ 	
+    #for i in range(7):
+        #mask[np.where(labels == i)[0][: int(config.size_labeled_data / 7)]] = True
+    
+    for i in range(4):
+        mask[np.where(labels == i)[0][: int(config.size_labeled_data / 8)]] = True  
+    
+    mask[np.where(labels == 4)[0][: int(config.size_labeled_data*6 / 8)]] = True        
+    
+    for i in range(5,8):
+        mask[np.where(labels == i)[0][: int(config.size_labeled_data / 8)]] = True  
+    
     # labeled_indices, unlabeled_indices = indices[mask], indices[~ mask]
+    '''
+    for i in range(len(train_labeled_set)):
+        if (int(train_labeled_set[i][1]) == 6):
+            img_name ='image' + str(i) + '_' + str(train_labeled_set[i][1]) + '.jpg'
+            vutils.save_image(train_labeled_set[i][0], img_name) 
+    '''
 
     train_labeled_indices = train_labeled_indices[mask]
     print ('# Labeled indices ', len(train_labeled_indices) )
     #print ('# Unlabeled indices All ', len(test_indices_uf) )
 
-    train_unlabeled_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/train_unlabeled/', transform=transform)   
+    train_unlabeled_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/dataset_splits/20180216_clean/train_unlabeled/', transform=transform)   
     train_unlabeled_indices_all = np.arange(len(train_unlabeled_set))
     np.random.shuffle(train_unlabeled_indices_all)
    
-    train_unlabeled_indices = train_unlabeled_indices_all[:35000]
+    train_unlabeled_indices = train_unlabeled_indices_all[:20000]
     print ('# UnLabeled indices ', len(train_unlabeled_indices) )
      
 	
-    test_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/test_labeled/', transform=transform)   
+    test_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/dataset_splits/20180216_clean/test_labeled/', transform=transform)   
     #test_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/test_set_extras/', transform=transform)   
     test_indices = np.arange(len(test_set))
     print ('# Test indices ', len(test_indices))
@@ -235,7 +251,7 @@ def get_pr2_loaders(config):
     dev_loader = DataLoader(config, test_set, test_indices, config.dev_batch_size)
 
     special_set = []
-    for i in range(6):
+    for i in range(8):
         special_set.append(train_labeled_set[train_labeled_indices[np.where(labels==i)[0][0]]][0])
     special_set = torch.stack(special_set)
 

@@ -1,23 +1,2 @@
-/home/mittal/.bashrc: Zeile 58: bind: Warnung: Zeileneditierung ist nicht aktiviert.
 /home/mittal/.bashrc: Zeile 59: bind: Warnung: Zeileneditierung ist nicht aktiviert.
-THCudaCheck FAIL file=/b/wheel/pytorch-src/torch/lib/THC/generic/THCStorage.cu line=66 error=46 : all CUDA-capable devices are busy or unavailable
-Traceback (most recent call last):
-  File "pr2_trainer.py", line 297, in <module>
-    trainer = Trainer(config.pr2_config(), args)
-  File "pr2_trainer.py", line 40, in __init__
-    self.dis = model.Discriminative(config).cuda()
-  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/nn/modules/module.py", line 147, in cuda
-    return self._apply(lambda t: t.cuda(device_id))
-  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/nn/modules/module.py", line 118, in _apply
-    module._apply(fn)
-  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/nn/modules/module.py", line 118, in _apply
-    module._apply(fn)
-  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/nn/modules/module.py", line 124, in _apply
-    param.data = fn(param.data)
-  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/nn/modules/module.py", line 147, in <lambda>
-    return self._apply(lambda t: t.cuda(device_id))
-  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/_utils.py", line 65, in _cuda
-    return new_type(self.size()).copy_(self, async)
-  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/cuda/__init__.py", line 275, in __new__
-    return super(_CudaBase, cls).__new__(cls, *args, **kwargs)
-RuntimeError: cuda runtime error (46) : all CUDA-capable devices are busy or unavailable at /b/wheel/pytorch-src/torch/lib/THC/generic/THCStorage.cu:66
+/home/mittal/.bashrc: Zeile 60: bind: Warnung: Zeileneditierung ist nicht aktiviert.

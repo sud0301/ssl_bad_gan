@@ -16,7 +16,7 @@ import os, sys
 import math
 import argparse
 from collections import OrderedDict
-
+import csv
 import numpy as np
 from utils import *
 
@@ -180,6 +180,10 @@ class Trainer(object):
         self.enc.eval()
 
         loss, incorrect, cnt = 0, 0, 0
+        pred_list = []
+        label_list = []
+        class_dist = np.zeros(8)
+	class_pred = np.zeros(8)
         for i, (images, labels) in enumerate(data_loader.get_iter()):
             images = Variable(images.cuda(), volatile=True)
             labels = Variable(labels.cuda(), volatile=True)
@@ -187,8 +191,16 @@ class Trainer(object):
             loss += self.d_criterion(pred_prob, labels).data[0]
             cnt += 1
             incorrect += torch.ne(torch.max(pred_prob, 1)[1], labels).data.sum()
+            pred_list.append(torch.max(pred_prob, 1)[1])
+            label_list.append(labels)
+            '''
+            for label in labels:
+                class_dist[int(label)] +=1  
+            for j in  torch.max(pred_prob, 1)[1]:
+                class_pred
+            '''
             if max_batch is not None and i >= max_batch - 1: break
-        return loss / cnt, incorrect
+        return loss / cnt, incorrect, pred_list, label_list, class_acc
 
 
     def visualize(self):
@@ -261,9 +273,15 @@ class Trainer(object):
                 self.visualize()
 
             if iter % config.eval_period == 0:
-                train_loss, train_incorrect = self.eval(self.labeled_loader)
-                dev_loss, dev_incorrect = self.eval(self.dev_loader)
-
+                train_loss, train_incorrect, _, _, _ = self.eval(self.labeled_loader)
+                dev_loss, dev_incorrect, pred_list, label_list = self.eval(self.dev_loader)
+                 
+                rows = zip(label_list, pred_list)
+                with open('predictions_list.csv', 'w') as myfile:
+                    wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+                    for row in rows:
+                        wr.writerow(row)
+                 
                 unl_acc, gen_acc, max_unl_acc, max_gen_acc = self.eval_true_fake(self.dev_loader, 10)
 
                 train_incorrect /= 1.0 * len(self.labeled_loader)
