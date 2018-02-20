@@ -127,9 +127,10 @@ class gris_config:
 
 class pr2_config:
     dataset = 'pr2'
+    model_name = '32x32_tr_1_te_2_20k_200'
     #image_size = 3 * 32 * 32
     image_size = 3 * 32 * 32
-    num_label = 8
+    num_label = 7
 
     gen_emb_size = 20
     noise_size = 100
@@ -143,14 +144,14 @@ class pr2_config:
 
     data_root = 'data'
 
-    size_labeled_data = 2600
-    size_test_data = 1200
+    size_labeled_data = 1400
+    size_test_data = 1400
 
     train_batch_size = 100
     train_batch_size_2 = 100
     dev_batch_size = 200
 
-    max_epochs = 1200
+    max_epochs = 2000
     vi_weight = 1e-2
 
 class pixelcnn_config:

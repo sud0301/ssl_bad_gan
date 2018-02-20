@@ -1,4 +1,6 @@
 cifar/
 cifar_log/
 model/
-
+pr2_log/32x32_tr_1_te_2_20k_200/
+pr2_log/badGAN/
+records/

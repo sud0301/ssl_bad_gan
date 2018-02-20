@@ -182,8 +182,8 @@ class Trainer(object):
         loss, incorrect, cnt = 0, 0, 0
         pred_list = []
         label_list = []
-        class_dist = np.zeros(8)
-	class_pred = np.zeros(8)
+        #class_dist = np.zeros(7, dtype=int)
+        #class_pred = np.zeros(7, dtype=int)
         for i, (images, labels) in enumerate(data_loader.get_iter()):
             images = Variable(images.cuda(), volatile=True)
             labels = Variable(labels.cuda(), volatile=True)
@@ -193,14 +193,15 @@ class Trainer(object):
             incorrect += torch.ne(torch.max(pred_prob, 1)[1], labels).data.sum()
             pred_list.append(torch.max(pred_prob, 1)[1])
             label_list.append(labels)
-            
+            '''
             for label, pred in zip(labels, torch.max(pred_prob, 1)[1]):
-                class_dist[int(label)] +=1 
+                print(label)
+                class_dist[label] +=1 
                 if (int(label) == int(pred)):
-                    class_pred[int(label)]+=1
-            
+                    class_pred[label]+=1
+            '''
             if max_batch is not None and i >= max_batch - 1: break
-        return loss / cnt, incorrect, pred_list, label_list, class_dist, class_pred
+        return loss / cnt, incorrect, pred_list, label_list #, class_dist, class_pred
 
 
     def visualize(self):
@@ -214,6 +215,26 @@ class Trainer(object):
 
         save_path = os.path.join(self.config.save_dir, '{}.FM+VI.{}.png'.format(self.config.dataset, self.config.suffix))
         vutils.save_image(gen_images.data.cpu(), save_path, normalize=True, range=(-1,1), nrow=10)
+
+    def save(self):
+        save_direc = os.path.join(self.config.save_dir, self.config.model_name)
+
+        if not os.path.exists(save_direc):
+            os.makedirs(save_direc)
+
+        torch.save(self.gen.state_dict(), os.path.join(save_direc, self.config.model_name + '_G.pkl'))
+        torch.save(self.dis.state_dict(), os.path.join(save_direc, self.config.model_name + '_D.pkl'))
+        torch.save(self.enc.state_dict(), os.path.join(save_direc, self.config.model_name + '_E.pkl'))
+
+        #with open(os.path.join(save_direc, self.config.model_name + '_history.pkl'), 'wb') as f:
+            #pickle.dump(self.train_hist, f)
+
+    def load(self):
+        save_direc = os.path.join(self.config.save_dir, self.config.model_name)
+
+        self.gen.load_state_dict(torch.load(os.path.join(save_direc, self.config.model_name + '_G.pkl')))
+        self.dis.load_state_dict(torch.load(os.path.join(save_direc, self.config.model_name + '_D.pkl')))
+        self.enc.load_state_dict(torch.load(os.path.join(save_direc, self.config.model_name + '_E.pkl')))
 
     def param_init(self):
         def func_gen(flag):
@@ -273,22 +294,29 @@ class Trainer(object):
                 self.visualize()
 
             if iter % config.eval_period == 0:
-                train_loss, train_incorrect, _, _, _, _ = self.eval(self.labeled_loader)
-                dev_loss, dev_incorrect, pred_list, label_list, class_dist, class_pred = self.eval(self.dev_loader)
-                print (class_dist)
-                print (class_pred)
-                ''' 
+                train_loss, train_incorrect, _, _  = self.eval(self.labeled_loader)
+                dev_loss, dev_incorrect, pred_list, label_list = self.eval(self.dev_loader)
+                #print (class_dist)
+                #print (class_pred)
+                 
                 rows = zip(label_list, pred_list)
                 with open('predictions_list.csv', 'w') as myfile:
                     wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
                     for row in rows:
                         wr.writerow(row)
-                ''' 
+                 
                 unl_acc, gen_acc, max_unl_acc, max_gen_acc = self.eval_true_fake(self.dev_loader, 10)
 
                 train_incorrect /= 1.0 * len(self.labeled_loader)
                 dev_incorrect /= 1.0 * len(self.dev_loader)
+                
+                if (dev_incorrect <  min_dev_incorrect):
+                    print ("saving model ...")
+                    self.save()
+                    
+                 
                 min_dev_incorrect = min(min_dev_incorrect, dev_incorrect)
+
 
                 disp_str = '#{}\ttrain: {:.4f}, {:.4f} | dev: {:.4f}, {:.4f} | best: {:.4f}'.format(
                     iter, train_loss, train_incorrect, dev_loss, dev_incorrect, min_dev_incorrect)
