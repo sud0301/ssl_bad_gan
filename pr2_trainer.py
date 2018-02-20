@@ -193,14 +193,14 @@ class Trainer(object):
             incorrect += torch.ne(torch.max(pred_prob, 1)[1], labels).data.sum()
             pred_list.append(torch.max(pred_prob, 1)[1])
             label_list.append(labels)
-            '''
-            for label in labels:
-                class_dist[int(label)] +=1  
-            for j in  torch.max(pred_prob, 1)[1]:
-                class_pred
-            '''
+            
+            for label, pred in zip(labels, torch.max(pred_prob, 1)[1]):
+                class_dist[int(label)] +=1 
+                if (int(label) == int(pred)):
+                    class_pred[int(label)]+=1
+            
             if max_batch is not None and i >= max_batch - 1: break
-        return loss / cnt, incorrect, pred_list, label_list, class_acc
+        return loss / cnt, incorrect, pred_list, label_list, class_dist, class_pred
 
 
     def visualize(self):
@@ -273,15 +273,17 @@ class Trainer(object):
                 self.visualize()
 
             if iter % config.eval_period == 0:
-                train_loss, train_incorrect, _, _, _ = self.eval(self.labeled_loader)
-                dev_loss, dev_incorrect, pred_list, label_list = self.eval(self.dev_loader)
-                 
+                train_loss, train_incorrect, _, _, _, _ = self.eval(self.labeled_loader)
+                dev_loss, dev_incorrect, pred_list, label_list, class_dist, class_pred = self.eval(self.dev_loader)
+                print (class_dist)
+                print (class_pred)
+                ''' 
                 rows = zip(label_list, pred_list)
                 with open('predictions_list.csv', 'w') as myfile:
                     wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
                     for row in rows:
                         wr.writerow(row)
-                 
+                ''' 
                 unl_acc, gen_acc, max_unl_acc, max_gen_acc = self.eval_true_fake(self.dev_loader, 10)
 
                 train_incorrect /= 1.0 * len(self.labeled_loader)
