@@ -198,25 +198,25 @@ def get_gris_loaders(config):
 
 
 def get_pr2_loaders(config):
-    transform = transforms.Compose([transforms.Resize(size=(32, 32), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    transform = transforms.Compose([transforms.Resize(size=(64, 64), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
     
-    train_labeled_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/dataset_splits/20180220/train_labeled_sample/train_set_1/', transform=transform)   
+    train_labeled_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/dataset_splits/20180220/train_labeled_sample/train_set_700_1/', transform=transform)   
  
     train_labeled_indices = np.arange(len(train_labeled_set))
     np.random.shuffle(train_labeled_indices)
     mask = np.zeros(train_labeled_indices.shape[0], dtype=np.bool)
     labels = np.array([train_labeled_set[i][1] for i in train_labeled_indices], dtype=np.int64)
- 	
+    	
     for i in range(7):
         mask[np.where(labels == i)[0][: int(config.size_labeled_data / 7)]] = True
     '''
-    for i in range(4):
-        mask[np.where(labels == i)[0][: int(config.size_labeled_data / 8)]] = True  
+    for i in range(5):
+        mask[np.where(labels == i)[0][: int(config.size_labeled_data / 6)]] = True  
     
-    mask[np.where(labels == 4)[0][: int(config.size_labeled_data*6 / 8)]] = True        
+    mask[np.where(labels == 5)[0][: int(700)]] = True        
     
-    for i in range(5,8):
-        mask[np.where(labels == i)[0][: int(config.size_labeled_data / 8)]] = True  
+    for i in range(6,7):
+        mask[np.where(labels == i)[0][: int(config.size_labeled_data / 6)]] = True  
     '''
     # labeled_indices, unlabeled_indices = indices[mask], indices[~ mask]
     '''
@@ -238,7 +238,7 @@ def get_pr2_loaders(config):
     print ('# UnLabeled indices ', len(train_unlabeled_indices) )
      
 	
-    test_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/dataset_splits/20180220/test_labeled_sample/test_set_2/', transform=transform)   
+    test_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/dataset_splits/20180220/test_labeled_sample/test_set_1/', transform=transform)   
     #test_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/test_set_extras/', transform=transform)   
     test_indices = np.arange(len(test_set))
     print ('# Test indices ', len(test_indices))

@@ -127,9 +127,9 @@ class gris_config:
 
 class pr2_config:
     dataset = 'pr2'
-    model_name = '32x32_tr_1_te_2_20k_200'
-    #image_size = 3 * 32 * 32
-    image_size = 3 * 32 * 32
+    model_name = '64x64_tr_1_te_1_20k_700'
+    image_size = 3 * 64 * 64
+    #image_size = 3 * 64 * 64
     num_label = 7
 
     gen_emb_size = 20
@@ -144,7 +144,7 @@ class pr2_config:
 
     data_root = 'data'
 
-    size_labeled_data = 1400
+    size_labeled_data = 4900
     size_test_data = 1400
 
     train_batch_size = 100

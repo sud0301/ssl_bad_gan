@@ -206,7 +206,7 @@ class Discriminative(nn.Module):
         elif config.dataset == 'gris':
             n_filter_1, n_filter_2 = 96, 192	
         elif config.dataset == 'pr2':
-            n_filter_1, n_filter_2 = 96, 192	
+            n_filter_1, n_filter_2, n_filter_3 = 96, 192, 384	
         else:
             raise ValueError('dataset not found: {}'.format(config.dataset))
 
@@ -228,10 +228,16 @@ class Discriminative(nn.Module):
 
             nn.Dropout2d(0.5) if config.dataset == 'svhn' else nn.Dropout(0.5),
 
-            WN_Conv2d(n_filter_2, n_filter_2, 3, 1, 0), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_2, n_filter_2, 1, 1, 0), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_2, n_filter_2, 1, 1, 0), nn.LeakyReLU(0.2),
+            WN_Conv2d(n_filter_2, n_filter_2, 3, 1, 1), nn.LeakyReLU(0.2),
+            WN_Conv2d(n_filter_2, n_filter_2, 3, 1, 1), nn.LeakyReLU(0.2),
+            WN_Conv2d(n_filter_2, n_filter_2, 3, 2, 1), nn.LeakyReLU(0.2),
 
+            nn.Dropout2d(0.5) if config.dataset == 'svhn' else nn.Dropout(0.5),
+
+            WN_Conv2d(n_filter_2, n_filter_3, 3, 1, 0), nn.LeakyReLU(0.2),
+            WN_Conv2d(n_filter_3, n_filter_3, 1, 1, 0), nn.LeakyReLU(0.2),
+            WN_Conv2d(n_filter_3, n_filter_3, 1, 1, 0), nn.LeakyReLU(0.2),
+            
             Expression(lambda tensor: tensor.mean(3).mean(2).squeeze()),
         )
 
@@ -239,8 +245,8 @@ class Discriminative(nn.Module):
 
     def forward(self, X, feat=False):
         if X.dim() == 2:
-            X = X.view(X.size(0), 3, 32, 32)
-            #X = X.view(X.size(0), 3, 64, 64)
+            #X = X.view(X.size(0), 3, 32, 32)
+            X = X.view(X.size(0), 3, 64, 64)
         
         if feat:
             return self.core_net(X)
@@ -259,8 +265,8 @@ class Generator(nn.Module):
                 nn.Linear(self.noise_size, 4 * 4 * 512, bias=False), nn.BatchNorm1d(4 * 4 * 512), nn.ReLU(), 
                 Expression(lambda tensor: tensor.view(tensor.size(0), 512, 4, 4)),
                 nn.ConvTranspose2d(512, 256, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(256), nn.ReLU(),
+                nn.ConvTranspose2d(256, 256, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(256), nn.ReLU(), # for 64 x 64 network
                 nn.ConvTranspose2d(256, 128, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
-                #nn.ConvTranspose2d(128, 64, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(64), nn.ReLU(), # for 64 x 64 network
                 WN_ConvTranspose2d(128, 3, 5, 2, 2, 1, train_scale=True, init_stdv=0.1), nn.Tanh(),
             )
         else:
@@ -288,8 +294,8 @@ class Encoder(nn.Module):
 
         self.core_net = nn.Sequential(
             nn.Conv2d(  3, 128, 5, 2, 2, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
-            #nn.Conv2d( 64, 128, 5, 2, 2, bias=False), nn.BatchNorm2d(128), nn.ReLU(), #64x64
             nn.Conv2d(128, 256, 5, 2, 2, bias=False), nn.BatchNorm2d(256), nn.ReLU(),
+            nn.Conv2d(256, 256, 5, 2, 2, bias=False), nn.BatchNorm2d(256), nn.ReLU(), #64x64
             nn.Conv2d(256, 512, 5, 2, 2, bias=False), nn.BatchNorm2d(512), nn.ReLU(),
             Expression(lambda tensor: tensor.view(tensor.size(0), 512 * 4 * 4)),
         )

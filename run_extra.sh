@@ -10,4 +10,4 @@ source ~/.bashrc
 workon apple
 
 cd /misc/lmbraid19/mittal/ssl_baselines/forked/ssl_bad_gan
-python pr2_trainer.py >> ./records/output_badGAN_32x32_tr_1_te_2_20k_200.txt
+python pr2_trainer.py >> ./records/output_badGAN_64x64_tr_1_te_1_20k_700.txt
