@@ -1,2 +1,12 @@
 /home/mittal/.bashrc: Zeile 59: bind: Warnung: Zeileneditierung ist nicht aktiviert.
 /home/mittal/.bashrc: Zeile 60: bind: Warnung: Zeileneditierung ist nicht aktiviert.
+Traceback (most recent call last):
+  File "pr2_trainer.py", line 376, in <module>
+    trainer.train()
+  File "pr2_trainer.py", line 338, in train
+    unl_acc, gen_acc, max_unl_acc, max_gen_acc = self.eval_true_fake(self.dev_loader, 10)
+  File "pr2_trainer.py", line 184, in eval_true_fake
+    unl_logits = self.dis.out_net(unl_feat)
+  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/nn/modules/module.py", line 238, in __getattr__
+    type(self).__name__, name))
+AttributeError: 'DataParallel' object has no attribute 'out_net'

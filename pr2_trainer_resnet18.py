@@ -5,12 +5,10 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.autograd import Variable
 import torchvision.utils as vutils
-import torch.backends.cudnn as cudnn
-
 
 import data
 import config
-import model
+import model64x64 as model
 
 import random
 import time
@@ -21,12 +19,6 @@ from collections import OrderedDict
 import csv
 import numpy as np
 from utils import *
-#from resnet import *
-from badgan_net import *
-from config import pr2_config
-
-use_cuda = torch.cuda.is_available()
-use_pretrained_CIFAR10_dis = True
 
 class Trainer(object):
 
@@ -45,20 +37,7 @@ class Trainer(object):
 
         self.labeled_loader, self.unlabeled_loader, self.unlabeled_loader2, self.dev_loader, self.special_set = data.get_pr2_loaders(config)
 
-        if use_pretrained_CIFAR10_dis:
-            self.dis = BadGAN(pr2_config)
-            print (self.dis)
-            if use_cuda:
-                self.dis.cuda()
-		self.dis = torch.nn.DataParallel(self.dis, device_ids=range(torch.cuda.device_count()))
-                cudnn.benchmark = True     
-		#net.load_state_dict(torch.load(os.path.join(save_direc, pr2_config.model_name + '_net.pkl')))
-            self.dis.load_state_dict(torch.load('../pytorch-cifar/logs/cifar_pretrained_badGAN/cifar_pretrained_badGAN_net.pkl'))
-            self.dis.module.out_net = WN_Linear(192, 7, train_scale=True, init_stdv=0.1) 
-            self.dis.cuda()
-        else:
-            self.dis = model.Discriminative(config).cuda()
-      
+        self.dis = model.Discriminative(config).cuda()
         self.gen = model.Generator(image_size=config.image_size, noise_size=config.noise_size).cuda()
         self.enc = model.Encoder(config.image_size, noise_size=config.noise_size, output_params=True).cuda()
 
@@ -98,6 +77,9 @@ class Trainer(object):
         noise = Variable(torch.Tensor(unl_images.size(0), config.noise_size).uniform_().cuda())
         gen_images = self.gen(noise)
         
+        resize_tensor = transforms.Compose([transforms.Resize(size=(64, 64))])     # resize to 224x224 
+        gen_images = resize_tensor(gen_images)      
+  
         lab_logits = self.dis(lab_images)
         unl_logits = self.dis(unl_images)
         gen_logits = self.dis(gen_images.detach())
@@ -137,6 +119,10 @@ class Trainer(object):
 
         # Feature matching loss
         unl_feat = self.dis(unl_images, feat=True)
+
+        resize_tensor = transforms.Compose([transforms.Resize(size=(64, 64))])     # resize to 224x224 
+        gen_images = resize_tensor(gen_images)                 
+
         gen_feat = self.dis(gen_images, feat=True)
         fm_loss = torch.mean(torch.abs(torch.mean(gen_feat, 0) - torch.mean(unl_feat, 0)))
 
@@ -176,12 +162,8 @@ class Trainer(object):
             unl_feat = self.dis(images, feat=True)
             gen_feat = self.dis(self.gen(noise), feat=True)
 
-            if use_pretraiend_CIFAR10_dis:
-                unl_logits = self.dis.module.out_net(unl_feat)
-                gen_logits = self.dis.module.out_net(gen_feat)
-            else:    
-                unl_logits = self.dis.out_net(unl_feat)
-                gen_logits = self.dis.out_net(gen_feat)
+            unl_logits = self.dis.out_net(unl_feat)
+            gen_logits = self.dis.out_net(gen_feat)
 
             unl_logsumexp = log_sum_exp(unl_logits)
             gen_logsumexp = log_sum_exp(gen_logits)
@@ -273,12 +255,10 @@ class Trainer(object):
             lab_images, _ = self.labeled_loader.next()
             images.append(lab_images)
         images = torch.cat(images, 0)
-        images.cuda()
 
         self.gen.apply(func_gen(True))
         noise = Variable(torch.Tensor(images.size(0), self.config.noise_size).uniform_().cuda())
         gen_images = self.gen(noise)
-        gen_images.cuda()
         self.gen.apply(func_gen(False))
 
         self.enc.apply(func_gen(True))
@@ -317,8 +297,8 @@ class Trainer(object):
                     monitor[k] = 0.
                 monitor[k] += v
 
-            if iter % config.vis_period == 0:
-                self.visualize()
+            #if iter % config.vis_period == 0:
+                #self.visualize()
 
             if iter % config.eval_period == 0:
                 train_loss, train_incorrect, _, _  = self.eval(self.labeled_loader)

@@ -1,0 +1,21 @@
+import: unable to open X server `' @ error/import.c/ImportImageCommand/364.
+import: unable to open X server `' @ error/import.c/ImportImageCommand/364.
+import: unable to open X server `' @ error/import.c/ImportImageCommand/364.
+import: unable to open X server `' @ error/import.c/ImportImageCommand/364.
+from: can't read /var/mail/torch.autograd
+import: unable to open X server `' @ error/import.c/ImportImageCommand/364.
+import: unable to open X server `' @ error/import.c/ImportImageCommand/364.
+import: unable to open X server `' @ error/import.c/ImportImageCommand/364.
+import: unable to open X server `' @ error/import.c/ImportImageCommand/364.
+import: unable to open X server `' @ error/import.c/ImportImageCommand/364.
+import: unable to open X server `' @ error/import.c/ImportImageCommand/364.
+import: unable to open X server `' @ error/import.c/ImportImageCommand/364.
+import: unable to open X server `' @ error/import.c/ImportImageCommand/364.
+import: unable to open X server `' @ error/import.c/ImportImageCommand/364.
+from: can't read /var/mail/collections
+import: unable to open X server `' @ error/import.c/ImportImageCommand/364.
+import: unable to open X server `' @ error/import.c/ImportImageCommand/364.
+from: can't read /var/mail/utils
+from: can't read /var/mail/resnet
+/var/spool/torque/mom_priv/jobs/1406415.lmbtorque.SC: Zeile 24: Syntaxfehler beim unerwarteten Wort »(«
+/var/spool/torque/mom_priv/jobs/1406415.lmbtorque.SC: Zeile 24: `class Trainer(object):'
