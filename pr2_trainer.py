@@ -50,7 +50,7 @@ class Trainer(object):
             print (self.dis)
             if use_cuda:
                 self.dis.cuda()
-		self.dis = torch.nn.DataParallel(self.dis, device_ids=range(torch.cuda.device_count()))
+                self.dis = torch.nn.DataParallel(self.dis, device_ids=range(torch.cuda.device_count()))
                 cudnn.benchmark = True     
 		#net.load_state_dict(torch.load(os.path.join(save_direc, pr2_config.model_name + '_net.pkl')))
             self.dis.load_state_dict(torch.load('../pytorch-cifar/logs/cifar_pretrained_badGAN/cifar_pretrained_badGAN_net.pkl'))
@@ -176,7 +176,7 @@ class Trainer(object):
             unl_feat = self.dis(images, feat=True)
             gen_feat = self.dis(self.gen(noise), feat=True)
 
-            if use_pretraiend_CIFAR10_dis:
+            if use_pretrained_CIFAR10_dis:
                 unl_logits = self.dis.module.out_net(unl_feat)
                 gen_logits = self.dis.module.out_net(gen_feat)
             else:    

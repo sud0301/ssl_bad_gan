@@ -127,7 +127,7 @@ class gris_config:
 
 class pr2_config:
     dataset = 'pr2'
-    model_name = '32x32_tr_1_te_1_20k_400_pretrained_cifar'
+    model_name = '32x32_tr_1_te_1_20k_400_pretrained_cifar_fast_lr'
     image_size = 3 * 32 * 32
     #image_size = 3 * 64 * 64
     num_label = 7
@@ -135,7 +135,7 @@ class pr2_config:
     gen_emb_size = 20
     noise_size = 100
     
-    dis_lr = 6e-4 #default lrs
+    dis_lr = 1e-3 #default lrs
     enc_lr = 3e-4
     gen_lr = 3e-4
     
