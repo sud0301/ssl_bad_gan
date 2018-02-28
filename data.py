@@ -234,7 +234,7 @@ def get_pr2_loaders(config):
     train_unlabeled_indices_all = np.arange(len(train_unlabeled_set))
     np.random.shuffle(train_unlabeled_indices_all)
    
-    train_unlabeled_indices = train_unlabeled_indices_all[:2000]
+    train_unlabeled_indices = train_unlabeled_indices_all[:20000]
     print ('# UnLabeled indices ', len(train_unlabeled_indices) )
      
 	

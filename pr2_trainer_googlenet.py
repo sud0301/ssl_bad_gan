@@ -61,20 +61,19 @@ class Trainer(object):
         elif use_pretrained_GoogleNet:
             self.dis = GoogLeNet()
             
-            '''
             if use_cuda:
                 self.dis.cuda()
                 self.dis = torch.nn.DataParallel(self.dis, device_ids=range(torch.cuda.device_count()))
-                cudnn.benchmark = False     
-            '''
-            self.dis.linear = nn.Linear(1024, 7) 
-            self.dis.cuda()
-            ''' 
+                cudnn.benchmark = False
+            
+            #self.dis.module.linear = nn.Linear(1024, 7) 
+            #self.dis.cuda()
+             
             self.dis.load_state_dict(torch.load('../pytorch-cifar/logs/cifar_pretrained_GoogleNet/cifar_pretrained_GoogleNet_net.pkl'))
             #self.dis.module.out_net = WN_Linear(1024, 7, train_scale=True, init_stdv=0.1) 
             self.dis.module.linear = nn.Linear(1024, 7) 
             self.dis.cuda()
-            '''
+            
         else:
             self.dis = model.Discriminative(config).cuda()
       
@@ -198,6 +197,9 @@ class Trainer(object):
             if use_pretrained_CIFAR10_dis:
                 unl_logits = self.dis.module.out_net(unl_feat)
                 gen_logits = self.dis.module.out_net(gen_feat)
+            elif use_pretrained_GoogleNet:
+                unl_logits = self.dis.module.linear(unl_feat)
+                gen_logits = self.dis.module.linear(gen_feat)
             else:    
                 unl_logits = self.dis.out_net(unl_feat)
                 gen_logits = self.dis.out_net(gen_feat)

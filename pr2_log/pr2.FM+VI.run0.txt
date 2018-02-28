@@ -1,6 +1,6 @@
-dis_lr : 0.0006
+dis_lr : 0.001
 enc_lr : 0.0003
-gen_lr : 0.0003
+gen_lr : 0.001
 suffix : run0
 dataset : pr2
 save_dir : pr2_log
@@ -9,13 +9,16 @@ num_label : 7
 vi_weight : 0.01
 image_size : 3072
 max_epochs : 2000
-model_name : 32x32_tr_1_te_1_20k_400_googlenet
+model_name : 32x32_tr_1_te_1_20k_400_CIFAR_pretrained_googlenet
 noise_size : 100
 vis_period : 1000
 eval_period : 1000
 gen_emb_size : 20
-dev_batch_size : 20
+dev_batch_size : 40
 size_test_data : 1400
-train_batch_size : 20
+train_batch_size : 40
 size_labeled_data : 1400
-train_batch_size_2 : 20
+train_batch_size_2 : 40
+#0	train: 1.8539, 0.6729 | dev: 1.8725, 0.7064 | best: 0.7064 | unl acc: 0.0010 | gen acc: 0.0010 | max unl acc: 0.0008 | max gen acc: 0.0008 | lab loss: 0.0020 | unl loss: 0.0011 | fm loss: 0.0000 | vi loss: 0.0175 | [Eval] unl acc: 1.0000, gen acc: 1.0000, max unl acc: 0.9825, max gen acc: 1.0000 | lr: 0.00100
+#1000	train: 1.2590, 0.3593 | dev: 2.8653, 0.5800 | best: 0.5800 | unl acc: 0.9924 | gen acc: 0.0359 | max unl acc: 0.9397 | max gen acc: 0.0040 | lab loss: 0.2358 | unl loss: 0.0963 | fm loss: 0.0540 | vi loss: -171.5073 | [Eval] unl acc: 1.0000, gen acc: 1.0000, max unl acc: 0.9950, max gen acc: 1.0000 | lr: 0.00100
+#2000	train: 0.7229, 0.1936 | dev: 3.2016, 0.4786 | best: 0.4786 | unl acc: 0.9993 | gen acc: 0.0000 | max unl acc: 0.9987 | max gen acc: 0.0000 | lab loss: 0.0507 | unl loss: 0.0085 | fm loss: 0.0603 | vi loss: -213.5005 | [Eval] unl acc: 1.0000, gen acc: 1.0000, max unl acc: 0.9900, max gen acc: 1.0000 | lr: 0.00100

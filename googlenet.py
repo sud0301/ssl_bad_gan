@@ -68,7 +68,7 @@ class GoogLeNet(nn.Module):
         self.b3 = Inception(256, 128, 128, 192, 32, 96, 64)
 
         self.maxpool = nn.MaxPool2d(3, stride=2, padding=1)
-        '''
+        
         self.a4 = Inception(480, 192,  96, 208, 16,  48,  64)
         self.b4 = Inception(512, 160, 112, 224, 24,  64,  64)
         self.c4 = Inception(512, 128, 128, 256, 24,  64,  64)
@@ -77,6 +77,7 @@ class GoogLeNet(nn.Module):
 
         self.a5 = Inception(832, 256, 160, 320, 32, 128, 128)
         self.b5 = Inception(832, 384, 192, 384, 48, 128, 128)
+        
         '''
         self.a4 = Inception(480, 192,  96, 208, 16,  48,  64)
         self.b4 = Inception(512, 160, 112, 224, 24,  64,  64)
@@ -86,14 +87,14 @@ class GoogLeNet(nn.Module):
 
         self.a5 = Inception(832, 256, 160, 320, 32, 128, 128)
         #self.b5 = Inception(832, 384, 192, 384, 48, 128, 128)
-
+        '''
 
 
         self.avgpool = nn.AvgPool2d(8, stride=1)
         self.linear = nn.Linear(1024, 10)
 
-    def forward(self, x):
-        '''
+    def forward(self, x, feat=False):
+        
         out = self.pre_layers(x)
         out = self.a3(out)
         out = self.b3(out)
@@ -108,7 +109,7 @@ class GoogLeNet(nn.Module):
         out = self.b5(out)
         out = self.avgpool(out)
         out = out.view(out.size(0), -1)
-        out = self.linear(out)
+        #out = self.linear(out)
         '''
         out = self.pre_layers(x)
         out = self.a3(out)
@@ -125,8 +126,14 @@ class GoogLeNet(nn.Module):
         out = self.avgpool(out)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
-        return out
-
+        '''
+        if feat:
+            return out
+        else:
+            return self.linear(out)
+    
+        #return out
+        
 # net = GoogLeNet()
 # x = torch.randn(1,3,32,32)
 # y = net(Variable(x))
