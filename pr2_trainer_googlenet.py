@@ -6,8 +6,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 import torchvision.utils as vutils
 import torch.backends.cudnn as cudnn
-import torchvision.transforms as transforms
-import torchvision
+
 
 import data
 import config
@@ -24,13 +23,12 @@ import numpy as np
 from utils import *
 #from resnet import *
 from badgan_net import *
+from googlenet import *
 from config import pr2_config
-import pretrainedmodels
-from PIL import Image
 
 use_cuda = torch.cuda.is_available()
 use_pretrained_CIFAR10_dis = False
-use_pretrained_ImageNet_dis = True
+use_pretrained_GoogleNet = True
 
 class Trainer(object):
 
@@ -60,17 +58,23 @@ class Trainer(object):
             self.dis.load_state_dict(torch.load('../pytorch-cifar/logs/cifar_pretrained_badGAN/cifar_pretrained_badGAN_net.pkl'))
             self.dis.module.out_net = WN_Linear(192, 7, train_scale=True, init_stdv=0.1) 
             self.dis.cuda()
-
-        elif use_pretrained_ImageNet_dis:
-            model_name = 'resnet18' # could be fbresnet152 or inceptionresnetv2
-            self.dis = pretrainedmodels.__dict__[model_name](num_classes=1000, pretrained='imagenet')
-            dim_feats = self.dis.last_linear.in_features # =2048
-            nb_classes = 7
-            self.dis.last_linear = nn.Linear(dim_feats, nb_classes)
+        elif use_pretrained_GoogleNet:
+            self.dis = GoogLeNet()
+            
+            '''
             if use_cuda:
                 self.dis.cuda()
                 self.dis = torch.nn.DataParallel(self.dis, device_ids=range(torch.cuda.device_count()))
-                cudnn.benchmark = True     
+                cudnn.benchmark = False     
+            '''
+            self.dis.linear = nn.Linear(1024, 7) 
+            self.dis.cuda()
+            ''' 
+            self.dis.load_state_dict(torch.load('../pytorch-cifar/logs/cifar_pretrained_GoogleNet/cifar_pretrained_GoogleNet_net.pkl'))
+            #self.dis.module.out_net = WN_Linear(1024, 7, train_scale=True, init_stdv=0.1) 
+            self.dis.module.linear = nn.Linear(1024, 7) 
+            self.dis.cuda()
+            '''
         else:
             self.dis = model.Discriminative(config).cuda()
       
@@ -112,16 +116,10 @@ class Trainer(object):
 
         noise = Variable(torch.Tensor(unl_images.size(0), config.noise_size).uniform_().cuda())
         gen_images = self.gen(noise)
-       
-        transform_224 = transforms.Compose([transforms.Resize(size=(224, 224))])
         
-        resized_lab_images = transform_224(lab_images)
-        resized_unl_images = transform_224(unl_images)
-        resized_gen_images = transform_224(gen_images)
- 
-        lab_logits = self.dis(resized_lab_images)
-        unl_logits = self.dis(resized_unl_images)
-        gen_logits = self.dis(resized_gen_images.detach())
+        lab_logits = self.dis(lab_images)
+        unl_logits = self.dis(unl_images)
+        gen_logits = self.dis(gen_images.detach())
 
         # Standard classification loss
         lab_loss = self.d_criterion(lab_logits, lab_labels)
@@ -151,15 +149,14 @@ class Trainer(object):
         ##### train Gen and Enc
         noise = Variable(torch.Tensor(unl_images.size(0), config.noise_size).uniform_().cuda())
         gen_images = self.gen(noise)
-        resized_gen_images = transform_224(gen_images)
 
         # Entropy loss via variational inference
         mu, log_sigma = self.enc(gen_images)
         vi_loss = gaussian_nll(mu, log_sigma, noise)
 
         # Feature matching loss
-        unl_feat = self.dis(resized_unl_images, feat=True)
-        gen_feat = self.dis(resized_gen_images, feat=True)
+        unl_feat = self.dis(unl_images, feat=True)
+        gen_feat = self.dis(gen_images, feat=True)
         fm_loss = torch.mean(torch.abs(torch.mean(gen_feat, 0) - torch.mean(unl_feat, 0)))
 
         # Generator loss
@@ -194,11 +191,9 @@ class Trainer(object):
         for i, (images, _) in enumerate(data_loader.get_iter()):
             images = Variable(images.cuda(), volatile=True)
             noise = Variable(torch.Tensor(images.size(0), self.config.noise_size).uniform_().cuda(), volatile=True)
-            transform_224 = transforms.Compose([transforms.Resize(size=(224, 224))])
-            resized_images = transform_224(images)
 
-            unl_feat = self.dis(resized_images, feat=True)
-            gen_feat = self.dis(transform_224(self.gen(noise)), feat=True)
+            unl_feat = self.dis(images, feat=True)
+            gen_feat = self.dis(self.gen(noise), feat=True)
 
             if use_pretrained_CIFAR10_dis:
                 unl_logits = self.dis.module.out_net(unl_feat)
@@ -236,9 +231,7 @@ class Trainer(object):
         for i, (images, labels) in enumerate(data_loader.get_iter()):
             images = Variable(images.cuda(), volatile=True)
             labels = Variable(labels.cuda(), volatile=True)
-            transform_224 = transforms.Compose([transforms.Resize(size=(224, 224))])
-            resized_images = transform_224(images)
-            pred_prob = self.dis(resized_images)
+            pred_prob = self.dis(images)
             loss += self.d_criterion(pred_prob, labels).data[0]
             cnt += 1
             incorrect += torch.ne(torch.max(pred_prob, 1)[1], labels).data.sum()
@@ -294,17 +287,13 @@ class Trainer(object):
                     setattr(m, 'init_mode', flag)
             return func
 
-        transform_224 = transforms.Compose([transforms.Resize(size=(224, 224))])
         images = []
         for i in range(int(500 / self.config.train_batch_size)):
             lab_images, _ = self.labeled_loader.next()
-            #lab_images = lab_images.resize(224,224)
-            #resized_lab_images = transform_224(lab_images)
             images.append(lab_images)
-        
         images = torch.cat(images, 0)
-        #images.cuda()
-        
+        images.cuda()
+
         self.gen.apply(func_gen(True))
         noise = Variable(torch.Tensor(images.size(0), self.config.noise_size).uniform_().cuda())
         gen_images = self.gen(noise)
@@ -316,9 +305,9 @@ class Trainer(object):
         self.enc.apply(func_gen(False))
 
         self.dis.apply(func_gen(True))
-        images = images.numpy()
-        images = Image.fromarray(images)
-        logits = self.dis(Variable(transform_224(images).cuda()))
+        #logits = self.dis(Variable(images.cuda()))
+        logits = self.dis(Variable(images.cuda(), volatile=True))
+        
         self.dis.apply(func_gen(False))
 
     def train(self):

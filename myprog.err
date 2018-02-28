@@ -1,2 +1,27 @@
 /home/mittal/.bashrc: Zeile 59: bind: Warnung: Zeileneditierung ist nicht aktiviert.
 /home/mittal/.bashrc: Zeile 60: bind: Warnung: Zeileneditierung ist nicht aktiviert.
+THCudaCheck FAIL file=/b/wheel/pytorch-src/torch/lib/THC/generic/THCStorage.cu line=66 error=2 : out of memory
+Traceback (most recent call last):
+  File "pr2_trainer_googlenet.py", line 389, in <module>
+    trainer.train()
+  File "pr2_trainer_googlenet.py", line 310, in train
+    self.param_init()
+  File "pr2_trainer_googlenet.py", line 305, in param_init
+    logits = self.dis(Variable(images.cuda()))
+  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/nn/modules/module.py", line 206, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/nn/parallel/data_parallel.py", line 59, in forward
+    return self.module(*inputs[0], **kwargs[0])
+  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/nn/modules/module.py", line 206, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/misc/lmbraid19/mittal/ssl_baselines/forked/ssl_bad_gan/googlenet.py", line 89, in forward
+    out = self.a4(out)
+  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/nn/modules/module.py", line 206, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/misc/lmbraid19/mittal/ssl_baselines/forked/ssl_bad_gan/googlenet.py", line 55, in forward
+    return torch.cat([y1,y2,y3,y4], 1)
+  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/autograd/variable.py", line 841, in cat
+    return Concat(dim)(*iterable)
+  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/autograd/_functions/tensor.py", line 310, in forward
+    return torch.cat(inputs, self.dim)
+RuntimeError: cuda runtime error (2) : out of memory at /b/wheel/pytorch-src/torch/lib/THC/generic/THCStorage.cu:66
