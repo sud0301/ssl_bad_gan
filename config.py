@@ -127,7 +127,7 @@ class gris_config:
 
 class pr2_config:
     dataset = 'pr2'
-    model_name = '32x32_tr_1_te_1_20k_400_CIFAR_pretrained_googlenet'
+    model_name = '64x64_tr_1_te_1_20k_400_7'
     #model_name = '32x32_tr_1_te_1_20k_400_googlenet'
     image_size = 3 * 32 * 32
     #image_size = 3 * 64 * 64
@@ -137,8 +137,8 @@ class pr2_config:
     noise_size = 100
     
     dis_lr = 1e-4 #default lrs
-    enc_lr = 3e-4
-    gen_lr = 6e-4
+    enc_lr = 1e-3
+    gen_lr = 1e-3
     
     '''
     dis_lr = 1e-3
@@ -154,9 +154,9 @@ class pr2_config:
     size_labeled_data = 1400
     size_test_data = 1400
 
-    train_batch_size = 40
-    train_batch_size_2 = 40
-    dev_batch_size = 40
+    train_batch_size = 100
+    train_batch_size_2 = 100
+    dev_batch_size = 100
 
     max_epochs = 2000
     vi_weight = 1e-2

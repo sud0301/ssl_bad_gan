@@ -265,7 +265,7 @@ class Generator(nn.Module):
                 nn.Linear(self.noise_size, 4 * 4 * 512, bias=False), nn.BatchNorm1d(4 * 4 * 512), nn.ReLU(), 
                 Expression(lambda tensor: tensor.view(tensor.size(0), 512, 4, 4)),
                 nn.ConvTranspose2d(512, 256, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(256), nn.ReLU(),
-                #nn.ConvTranspose2d(256, 256, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(256), nn.ReLU(), # for 64 x 64 network
+                nn.ConvTranspose2d(256, 256, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(256), nn.ReLU(), # for 64 x 64 network
                 nn.ConvTranspose2d(256, 128, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
                 WN_ConvTranspose2d(128, 3, 5, 2, 2, 1, train_scale=True, init_stdv=0.1), nn.Tanh(),
             )
@@ -295,7 +295,7 @@ class Encoder(nn.Module):
         self.core_net = nn.Sequential(
             nn.Conv2d(  3, 128, 5, 2, 2, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
             nn.Conv2d(128, 256, 5, 2, 2, bias=False), nn.BatchNorm2d(256), nn.ReLU(),
-            #nn.Conv2d(256, 256, 5, 2, 2, bias=False), nn.BatchNorm2d(256), nn.ReLU(), #64x64
+            nn.Conv2d(256, 256, 5, 2, 2, bias=False), nn.BatchNorm2d(256), nn.ReLU(), #64x64
             nn.Conv2d(256, 512, 5, 2, 2, bias=False), nn.BatchNorm2d(512), nn.ReLU(),
             Expression(lambda tensor: tensor.view(tensor.size(0), 512 * 4 * 4)),
         )

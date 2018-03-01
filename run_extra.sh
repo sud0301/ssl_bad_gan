@@ -10,7 +10,5 @@ source ~/.bashrc
 workon apple
 
 cd /misc/lmbraid19/mittal/ssl_baselines/forked/ssl_bad_gan
-python pr2_trainer_googlenet.py >> ./records/output_badGAN_32x32_tr_1_te_1_20k_400_googlenet.txt
+python pr2_trainer_64x64.py >> ./records/output_badGAN_64x64_tr_1_te_1_20k_400_7.txt
 
-echo "pid, gpu_utilization [%], mem_utilization [%], max_memory_usage [MiB], time [ms]"
-nvidia-smi --query-accounted-apps="pid,gpu_util,mem_util,max_memory_usage,time" --format=csv | tail -n1
