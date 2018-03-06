@@ -10,7 +10,8 @@ import torch.backends.cudnn as cudnn
 
 import data
 import config
-import model64x64 as model
+import model128x128_chair_gen as model
+#import model128x128 as model
 
 import random
 import time
@@ -27,8 +28,9 @@ from config import pr2_config
 
 use_cuda = torch.cuda.is_available()
 use_pretrained_CIFAR10_dis = False
-saving_mode = False
-loading_mode = True
+saving_mode = True
+loading_mode = False
+#cudnn.benchmark = True     
 
 class Trainer(object):
 
@@ -72,9 +74,16 @@ class Trainer(object):
             self.enc = model.Encoder(config.image_size, noise_size=config.noise_size, output_params=True).cuda() 
             self.load()
 
+        self.num_dis = sum(p.numel() for p in self.dis.parameters() if p.requires_grad)
+        self.num_gen = sum(p.numel() for p in self.gen.parameters() if p.requires_grad)
+        self.num_enc = sum(p.numel() for p in self.enc.parameters() if p.requires_grad)
+    
+        print ('num_dis: ', self.num_dis, 'num_gen: ', self.num_gen, 'num_enc: ', self.num_enc)        
+
         self.dis_optimizer = optim.Adam(self.dis.parameters(), lr=config.dis_lr, betas=(0.5, 0.999))
         self.gen_optimizer = optim.Adam(self.gen.parameters(), lr=config.gen_lr, betas=(0.0, 0.999))
         self.enc_optimizer = optim.Adam(self.enc.parameters(), lr=config.enc_lr, betas=(0.0, 0.999))
+
 
         self.d_criterion = nn.CrossEntropyLoss()
 
@@ -86,6 +95,8 @@ class Trainer(object):
         self.logger.write(disp_str)
 
         print (self.dis)
+        print (self.gen)
+        print (self.enc)
 
     def _get_vis_images(self, labels):
         labels = labels.data.cpu()
@@ -94,6 +105,8 @@ class Trainer(object):
 
     def _train(self, labeled=None, vis=False):
         config = self.config
+        
+        
         self.dis.train()
         self.gen.train()
         self.enc.train()
@@ -271,6 +284,9 @@ class Trainer(object):
         self.dis.load_state_dict(torch.load(os.path.join(save_direc, self.config.model_name + '_D.pkl')))
         self.enc.load_state_dict(torch.load(os.path.join(save_direc, self.config.model_name + '_E.pkl')))
 
+    def count_parameters(self):
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)
+
     def param_init(self):
         def func_gen(flag):
             def func(m):
@@ -287,6 +303,8 @@ class Trainer(object):
 
         self.gen.apply(func_gen(True))
         noise = Variable(torch.Tensor(images.size(0), self.config.noise_size).uniform_().cuda())
+        #print(noise.size())
+        #noise = noise.view(images.size(0)*self.config.noise_size, 1, 1)
         gen_images = self.gen(noise)
         gen_images.cuda()
         self.gen.apply(func_gen(False))
@@ -297,6 +315,7 @@ class Trainer(object):
 
         self.dis.apply(func_gen(True))
         logits = self.dis(Variable(images.cuda(), volatile=True))
+        #logits = self.dis(Variable(images.cuda()))
         self.dis.apply(func_gen(False))
 
     def train(self):
@@ -374,7 +393,7 @@ class Trainer(object):
             self.iter_cnt += 1
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='pr2_trainer.py')
+    parser = argparse.ArgumentParser(description='pr2_trainer_128x128.py')
     parser.add_argument('-suffix', default='run0', type=str, help="Suffix added to the save images.")
 
     args = parser.parse_args()
