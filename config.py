@@ -127,16 +127,22 @@ class gris_config:
 
 class pr2_config:
     dataset = 'pr2'
-    model_name = '128x128_tr_1_te_1_20k_400_12_feat_384_chair_gen'
+    #model_name = '224x224_tr_1_te_1_24k_400_7'
+    model_name = '128x128_tr_1_te_1_24k_400_7_imagenet_norm'
+    #model_name = '128x128_tr_1_te_1_24k_400_12_feat_384_chair_gen_again'
+    #model_name = '64x64_tr_1_te_1_24k_400_7_imagenet_norm'
     #model_name = '32x32_tr_1_te_1_20k_400_googlenet'
+   
+    image_side = 128
+    #image_size = 3 * 64 * 64
     image_size = 3 * 128 * 128
     #image_size = 3 * 64 * 64
     num_label = 7
 
     gen_emb_size = 20
-    noise_size = 100
+    noise_size = 256
     
-    dis_lr = 3e-4 #default lrs
+    dis_lr = 1e-4 #default lrs
     enc_lr = 1e-3
     gen_lr = 1e-3
     
@@ -151,7 +157,7 @@ class pr2_config:
 
     data_root = 'data'
 
-    size_labeled_data = 1400
+    size_labeled_data = 2800
     size_test_data = 1400
 
     train_batch_size = 16
@@ -159,7 +165,7 @@ class pr2_config:
     dev_batch_size = 16
 
     max_epochs = 2000
-    vi_weight = 1e-2 #default
+    vi_weight =  5e-2 #default
     #vi_weight = 5e-2
 
 class pixelcnn_config:

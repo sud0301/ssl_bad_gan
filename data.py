@@ -199,7 +199,8 @@ def get_gris_loaders(config):
 
 def get_pr2_loaders(config):
     #transform = transforms.Compose([transforms.Resize(size=(32, 32), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-    transform = transforms.Compose([transforms.Resize(size=(128, 128), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    #transform = transforms.Compose([transforms.Resize(size=(config.image_side, config.image_side), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    transform = transforms.Compose([transforms.Resize(size=(config.image_side, config.image_side), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225 ))])
    
     train_labeled_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/dataset_splits/20180220/train_labeled_sample/train_set_400_1/', transform=transform)   
  
@@ -231,7 +232,7 @@ def get_pr2_loaders(config):
     print ('# Labeled indices ', len(train_labeled_indices) )
     #print ('# Unlabeled indices All ', len(test_indices_uf) )
 
-    train_unlabeled_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/dataset_splits/20180220/train_unlabeled_selected/', transform=transform)   
+    train_unlabeled_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/dataset_splits/20180220/train_unlabeled/', transform=transform)   
     train_unlabeled_indices = np.arange(len(train_unlabeled_set))
     np.random.shuffle(train_unlabeled_indices)
    

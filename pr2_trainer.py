@@ -21,12 +21,12 @@ from collections import OrderedDict
 import csv
 import numpy as np
 from utils import *
-#from resnet import *
+from resnet import *
 from badgan_net import *
 from config import pr2_config
 
 use_cuda = torch.cuda.is_available()
-use_pretrained_CIFAR10_dis = True
+use_pretrained_CIFAR10_dis = False
 
 class Trainer(object):
 
@@ -57,7 +57,11 @@ class Trainer(object):
             self.dis.module.out_net = WN_Linear(192, 7, train_scale=True, init_stdv=0.1) 
             self.dis.cuda()
         else:
-            self.dis = model.Discriminative(config).cuda()
+            self.dis = ResNet18()
+            self.dis.cuda()
+            #self.dis = torch.nn.DataParallel(self.dis, device_ids=range(torch.cuda.device_count()))
+            #cudnn.benchmark = True     
+            #self.dis = model.Discriminative(config).cuda()
       
         self.gen = model.Generator(image_size=config.image_size, noise_size=config.noise_size).cuda()
         self.enc = model.Encoder(config.image_size, noise_size=config.noise_size, output_params=True).cuda()
@@ -65,6 +69,12 @@ class Trainer(object):
         self.dis_optimizer = optim.Adam(self.dis.parameters(), lr=config.dis_lr, betas=(0.5, 0.999))
         self.gen_optimizer = optim.Adam(self.gen.parameters(), lr=config.gen_lr, betas=(0.0, 0.999))
         self.enc_optimizer = optim.Adam(self.enc.parameters(), lr=config.enc_lr, betas=(0.0, 0.999))
+
+        self.num_dis = sum(p.numel() for p in self.dis.parameters() if p.requires_grad)
+        self.num_gen = sum(p.numel() for p in self.gen.parameters() if p.requires_grad)
+        self.num_enc = sum(p.numel() for p in self.enc.parameters() if p.requires_grad)
+
+        print ('num_dis: ', self.num_dis, 'num_gen: ', self.num_gen, 'num_enc: ', self.num_enc)
 
         self.d_criterion = nn.CrossEntropyLoss()
 
@@ -76,6 +86,8 @@ class Trainer(object):
         self.logger.write(disp_str)
 
         print (self.dis)
+        print (self.gen)
+        print (self.enc)
 
     def _get_vis_images(self, labels):
         labels = labels.data.cpu()
@@ -180,8 +192,8 @@ class Trainer(object):
                 unl_logits = self.dis.module.out_net(unl_feat)
                 gen_logits = self.dis.module.out_net(gen_feat)
             else:    
-                unl_logits = self.dis.out_net(unl_feat)
-                gen_logits = self.dis.out_net(gen_feat)
+                unl_logits = self.dis.linear(unl_feat)
+                gen_logits = self.dis.linear(gen_feat)
 
             unl_logsumexp = log_sum_exp(unl_logits)
             gen_logsumexp = log_sum_exp(gen_logits)

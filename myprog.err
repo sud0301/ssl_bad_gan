@@ -1,25 +1,8 @@
 /home/mittal/.bashrc: Zeile 59: bind: Warnung: Zeileneditierung ist nicht aktiviert.
 /home/mittal/.bashrc: Zeile 60: bind: Warnung: Zeileneditierung ist nicht aktiviert.
-THCudaCheck FAIL file=/b/wheel/pytorch-src/torch/lib/THC/generic/THCStorage.cu line=66 error=2 : out of memory
 Traceback (most recent call last):
-  File "pr2_trainer_128x128.py", line 402, in <module>
-    trainer.train()
-  File "pr2_trainer_128x128.py", line 323, in train
-    self.param_init()
-  File "pr2_trainer_128x128.py", line 318, in param_init
-    logits = self.dis(Variable(images.cuda()))
-  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/nn/modules/module.py", line 206, in __call__
-    result = self.forward(*input, **kwargs)
-  File "/misc/lmbraid19/mittal/ssl_baselines/forked/ssl_bad_gan/model128x128.py", line 261, in forward
-    return self.out_net(self.core_net(X))
-  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/nn/modules/module.py", line 206, in __call__
-    result = self.forward(*input, **kwargs)
-  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/nn/modules/container.py", line 64, in forward
-    input = module(input)
-  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/nn/modules/module.py", line 206, in __call__
-    result = self.forward(*input, **kwargs)
-  File "/misc/lmbraid19/mittal/ssl_baselines/forked/ssl_bad_gan/model128x128.py", line 116, in forward
-    dilation=self.dilation, groups=self.groups)
-  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/nn/functional.py", line 40, in conv2d
-    return f(input, weight, bias)
-RuntimeError: cuda runtime error (2) : out of memory at /b/wheel/pytorch-src/torch/lib/THC/generic/THCStorage.cu:66
+  File "pr2_trainer_128x128.py", line 409, in <module>
+    trainer = Trainer(config.pr2_config(), args)
+  File "pr2_trainer_128x128.py", line 92, in __init__
+    if not os.path.exists(save_direc):
+NameError: name 'save_direc' is not defined

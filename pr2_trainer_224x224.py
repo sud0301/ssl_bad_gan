@@ -10,7 +10,7 @@ import torch.backends.cudnn as cudnn
 
 import data
 import config
-import model128x128_chair_gen as model
+import model224x224 as model
 #import model128x128 as model
 
 import random
@@ -86,6 +86,7 @@ class Trainer(object):
 
 
         self.d_criterion = nn.CrossEntropyLoss()
+
 
         self.save_direc = os.path.join(self.config.save_dir, self.config.model_name)
 
@@ -254,7 +255,7 @@ class Trainer(object):
         return loss / cnt, incorrect, pred_list, label_list #, class_dist, class_pred
 
 
-    def visualize(self, count):
+    def visualize(self):
         self.gen.eval()
         self.dis.eval()
         self.enc.eval()
@@ -262,13 +263,12 @@ class Trainer(object):
         vis_size = 100
         noise = Variable(torch.Tensor(vis_size, self.config.noise_size).uniform_().cuda())
         gen_images = self.gen(noise)
-        
         save_direc = os.path.join(self.config.save_dir, self.config.model_name)
 
         if not os.path.exists(save_direc):
             os.makedirs(save_direc)
 
-        save_path = os.path.join(save_direc, '{}.FM+VI.{}.png'.format(self.concount))
+        save_path = os.path.join(save_direc, '{}.FM+VI.{}.png'.format(self.config.dataset, self.config.suffix))
         vutils.save_image(gen_images.data.cpu(), save_path, normalize=True, range=(-1,1), nrow=10)
 
     def save(self):
@@ -354,8 +354,7 @@ class Trainer(object):
                 monitor[k] += v
 
             if iter % config.vis_period == 0:
-                count = iter / config.vis_period
-                self.visualize(count)
+                self.visualize()
 
             if iter % config.eval_period == 0:
                 train_loss, train_incorrect, _, _  = self.eval(self.labeled_loader)
@@ -401,7 +400,7 @@ class Trainer(object):
             self.iter_cnt += 1
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='pr2_trainer_128x128.py')
+    parser = argparse.ArgumentParser(description='pr2_trainer_224x224.py')
     parser.add_argument('-suffix', default='run0', type=str, help="Suffix added to the save images.")
 
     args = parser.parse_args()

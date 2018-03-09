@@ -27,8 +27,8 @@ from config import pr2_config
 
 use_cuda = torch.cuda.is_available()
 use_pretrained_CIFAR10_dis = False
-saving_mode = False
-loading_mode = True
+saving_mode = True
+loading_mode = False
 
 class Trainer(object):
 
@@ -76,16 +76,26 @@ class Trainer(object):
         self.gen_optimizer = optim.Adam(self.gen.parameters(), lr=config.gen_lr, betas=(0.0, 0.999))
         self.enc_optimizer = optim.Adam(self.enc.parameters(), lr=config.enc_lr, betas=(0.0, 0.999))
 
+        self.num_dis = sum(p.numel() for p in self.dis.parameters() if p.requires_grad)
+        self.num_gen = sum(p.numel() for p in self.gen.parameters() if p.requires_grad)
+        self.num_enc = sum(p.numel() for p in self.enc.parameters() if p.requires_grad)
+
+        print ('num_dis: ', self.num_dis, 'num_gen: ', self.num_gen, 'num_enc: ', self.num_enc)
+
         self.d_criterion = nn.CrossEntropyLoss()
 
-        if not os.path.exists(self.config.save_dir):
-            os.makedirs(self.config.save_dir)
+        self.save_direc = os.path.join(self.config.save_dir, self.config.model_name)
 
-        log_path = os.path.join(self.config.save_dir, '{}.FM+VI.{}.txt'.format(self.config.dataset, self.config.suffix))
+        if not os.path.exists(self.save_direc):
+            os.makedirs(self.save_direc)
+
+        log_path = os.path.join(self.save_direc, '{}.FM+VI.{}.txt'.format(self.config.dataset, self.config.suffix))
         self.logger = open(log_path, 'w')
         self.logger.write(disp_str)
 
         print (self.dis)
+        print (self.gen)
+        print (self.enc)
 
     def _get_vis_images(self, labels):
         labels = labels.data.cpu()
@@ -239,7 +249,7 @@ class Trainer(object):
         return loss / cnt, incorrect, pred_list, label_list #, class_dist, class_pred
 
 
-    def visualize(self):
+    def visualize(self, count):
         self.gen.eval()
         self.dis.eval()
         self.enc.eval()
@@ -248,7 +258,12 @@ class Trainer(object):
         noise = Variable(torch.Tensor(vis_size, self.config.noise_size).uniform_().cuda())
         gen_images = self.gen(noise)
 
-        save_path = os.path.join(self.config.save_dir, '{}.FM+VI.{}.png'.format(self.config.dataset, self.config.suffix))
+        save_direc = os.path.join(self.config.save_dir, self.config.model_name)
+
+        if not os.path.exists(save_direc):
+            os.makedirs(save_direc)
+        
+        save_path = os.path.join(save_direc, '{}.FM+VI.{}.png'.format(self.config.dataset, count))
         vutils.save_image(gen_images.data.cpu(), save_path, normalize=True, range=(-1,1), nrow=10)
 
     def save(self):
@@ -328,7 +343,8 @@ class Trainer(object):
                 monitor[k] += v
 
             if iter % config.vis_period == 0:
-                self.visualize()
+                count = iter / config.vis_period
+                self.visualize(count)
 
             if iter % config.eval_period == 0:
                 train_loss, train_incorrect, _, _  = self.eval(self.labeled_loader)
