@@ -127,15 +127,17 @@ class gris_config:
 
 class pr2_config:
     dataset = 'pr2'
-    #model_name = '224x224_tr_1_te_1_24k_400_7'
-    model_name = '128x128_tr_1_te_1_24k_400_7_imagenet_norm'
+    model_name = '224x224_tr_1_te_1_25k_400_7_comb_resnet18'
+    #model_name = '128x128_tr_1_te_1_24k_400_12_feat_384_chair_gen_again'
+    #model_name = '128x128_tr_1_te_1_20k_400_12_feat_384_chair_gen'
+    #model_name = '128x128_tr_1_te_1_25k_400_7_comb_no_vi'
     #model_name = '128x128_tr_1_te_1_24k_400_12_feat_384_chair_gen_again'
     #model_name = '64x64_tr_1_te_1_24k_400_7_imagenet_norm'
     #model_name = '32x32_tr_1_te_1_20k_400_googlenet'
    
-    image_side = 128
+    image_side = 224
     #image_size = 3 * 64 * 64
-    image_size = 3 * 128 * 128
+    image_size = 3 * 224 * 224
     #image_size = 3 * 64 * 64
     num_label = 7
 
@@ -151,7 +153,7 @@ class pr2_config:
     enc_lr = 3e-4
     gen_lr = 1e-3
     '''
-
+    include_train_labeled = True
     eval_period = 1000
     vis_period = 1000
 

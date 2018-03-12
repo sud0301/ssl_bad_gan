@@ -199,8 +199,8 @@ def get_gris_loaders(config):
 
 def get_pr2_loaders(config):
     #transform = transforms.Compose([transforms.Resize(size=(32, 32), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-    #transform = transforms.Compose([transforms.Resize(size=(config.image_side, config.image_side), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-    transform = transforms.Compose([transforms.Resize(size=(config.image_side, config.image_side), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225 ))])
+    transform = transforms.Compose([ transforms.Resize(size=(config.image_side, config.image_side), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    #transform = transforms.Compose([transforms.Resize(size=(config.image_side, config.image_side), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225 ))])
    
     train_labeled_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/dataset_splits/20180220/train_labeled_sample/train_set_400_1/', transform=transform)   
  
@@ -211,15 +211,7 @@ def get_pr2_loaders(config):
     	
     for i in range(7):
         mask[np.where(labels == i)[0][: int(config.size_labeled_data / 7)]] = True
-    '''
-    for i in range(5):
-        mask[np.where(labels == i)[0][: int(config.size_labeled_data / 6)]] = True  
     
-    mask[np.where(labels == 5)[0][: int(700)]] = True        
-    
-    for i in range(6,7):
-        mask[np.where(labels == i)[0][: int(config.size_labeled_data / 6)]] = True  
-    '''
     # labeled_indices, unlabeled_indices = indices[mask], indices[~ mask]
     '''
     for i in range(len(train_labeled_set)):
@@ -236,10 +228,30 @@ def get_pr2_loaders(config):
     train_unlabeled_indices = np.arange(len(train_unlabeled_set))
     np.random.shuffle(train_unlabeled_indices)
    
-    #train_unlabeled_indices = train_unlabeled_indices_all[:20000]
+    #train_unlabeled_indices = train_unlabeled_indices_all[:1000]
     print ('# UnLabeled indices ', len(train_unlabeled_indices) )
      
-	
+
+    if config.include_train_labeled: 	
+        count_comb = len(train_labeled_indices) + len(train_unlabeled_indices)
+        images_comb, labels_comb = [], []
+        for idx in train_labeled_indices:
+            image, label = train_labeled_set[idx]
+            images_comb.append(image)
+            labels_comb.append(label)
+        for idx in train_unlabeled_indices:
+            image, label = train_unlabeled_set[idx]
+            images_comb.append(image)
+            labels_comb.append(label)
+
+        images_comb = torch.stack(images_comb, 0)
+        labels_comb = torch.from_numpy(np.array(labels_comb, dtype=np.int64)).squeeze()
+   
+        train_unlabeled_set_comb = list(zip(images_comb, labels_comb))
+        train_unlabeled_indices_comb = np.arange(len(train_unlabeled_set_comb))
+        np.random.shuffle(train_unlabeled_indices_comb)
+        print ('# UnLabeled indices combined', len(train_unlabeled_indices_comb) )
+ 
     test_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/dataset_splits/20180220/test_labeled_sample/test_set_1/', transform=transform)   
     #test_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/test_set_extras/', transform=transform)   
     test_indices = np.arange(len(test_set))
@@ -248,8 +260,12 @@ def get_pr2_loaders(config):
     #print ('labeled size', train_labeled_indices.shape[0], 'unlabeled size', train_unlabeled_indices.shape[0], 'dev size', test_indices.shape[0])
 
     labeled_loader = DataLoader(config, train_labeled_set, train_labeled_indices, config.train_batch_size)
-    unlabeled_loader = DataLoader(config, train_unlabeled_set, train_unlabeled_indices, config.train_batch_size_2)
-    unlabeled_loader2 = DataLoader(config, train_unlabeled_set, train_unlabeled_indices, config.train_batch_size_2)
+    if config.include_train_labeled:
+        unlabeled_loader = DataLoader(config, train_unlabeled_set_comb, train_unlabeled_indices_comb, config.train_batch_size_2)
+        unlabeled_loader2 = DataLoader(config, train_unlabeled_set_comb, train_unlabeled_indices_comb, config.train_batch_size_2) 
+    else:
+        unlabeled_loader = DataLoader(config, train_unlabeled_set, train_unlabeled_indices, config.train_batch_size_2)
+        unlabeled_loader2 = DataLoader(config, train_unlabeled_set, train_unlabeled_indices, config.train_batch_size_2)
     dev_loader = DataLoader(config, test_set, test_indices, config.dev_batch_size)
 
     special_set = []

@@ -246,16 +246,10 @@ class Discriminative(nn.Module):
             
             nn.Dropout2d(0.5) if config.dataset == 'svhn' else nn.Dropout(0.5),
 
-            WN_Conv2d(n_filter_2, n_filter_3, 3, 1, 1), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_3, n_filter_3, 3, 1, 1), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_3, n_filter_3, 3, 2, 1), nn.LeakyReLU(0.2),
-            
-            nn.Dropout2d(0.5) if config.dataset == 'svhn' else nn.Dropout(0.5),
+            WN_Conv2d(n_filter_2, n_filter_3, 3, 1, 0), nn.LeakyReLU(0.2),
+            WN_Conv2d(n_filter_3, n_filter_3, 1, 1, 0), nn.LeakyReLU(0.2),
+            WN_Conv2d(n_filter_3, n_filter_3, 1, 1, 0), nn.LeakyReLU(0.2),
 
-            WN_Conv2d(n_filter_3, n_filter_3, 3, 1, 0), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_3, n_filter_3, 1, 1, 0), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_3, n_filter_3, 1, 1, 0), nn.LeakyReLU(0.2),
-            
             Expression(lambda tensor: tensor.mean(3).mean(2).squeeze()),
         )
 
@@ -281,16 +275,15 @@ class Generator(nn.Module):
 
         if not large:
             self.core_net = nn.Sequential(
-                nn.Linear(self.noise_size, 7 * 7 * 256, bias=False), nn.BatchNorm1d(7 * 7 * 256), nn.ReLU(), 
-                Expression(lambda tensor: tensor.view(tensor.size(0), 256, 7, 7)),
-                nn.ConvTranspose2d(256, 128, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
+                nn.Linear(self.noise_size, 4 * 4 * 128, bias=False), nn.BatchNorm1d(4 * 4 * 128), nn.ReLU(), 
+                Expression(lambda tensor: tensor.view(tensor.size(0), 128, 4, 4)),
+                nn.ConvTranspose2d(128, 128, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
                 #nn.Conv2d(256, 256, 3, 1, 1, bias=False), nn.BatchNorm2d(256), nn.ReLU(),
                 nn.ConvTranspose2d(128, 128, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
                 #nn.Conv2d(128, 128, 3, 1, 1, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
                 nn.ConvTranspose2d(128, 64, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(64), nn.ReLU(), # for 64 x 64 network
                 #nn.Conv2d( 64,  64, 3, 1, 1, bias=False), nn.BatchNorm2d(64), nn.ReLU(),
                 nn.ConvTranspose2d( 64, 64, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(64), nn.ReLU(),
-                #nn.ConvTranspose2d( 64, 64, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(64), nn.ReLU(),
                 #nn.Conv2d( 64,  64, 3, 1, 1, bias=False), nn.BatchNorm2d(64), nn.ReLU(),
                 WN_ConvTranspose2d( 64,  3, 5, 2, 2, 1, train_scale=True, init_stdv=0.1), nn.Tanh(),
             )
@@ -319,19 +312,18 @@ class Encoder(nn.Module):
 
         self.core_net = nn.Sequential(
             nn.Conv2d(  3, 64, 5, 2, 2, bias=False), nn.BatchNorm2d(64), nn.ReLU(),
-            #nn.Conv2d( 64, 64, 5, 2, 2, bias=False), nn.BatchNorm2d(64), nn.ReLU(),
             nn.Conv2d( 64, 64, 5, 2, 2, bias=False), nn.BatchNorm2d(64), nn.ReLU(),
-            nn.Conv2d( 64, 128, 5, 2, 2, bias=False), nn.BatchNorm2d(128), nn.ReLU(), #64x64
+            nn.Conv2d( 64, 128, 5, 2, 2, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
+            nn.Conv2d(128, 128, 5, 2, 2, bias=False), nn.BatchNorm2d(128), nn.ReLU(), #64x64
             nn.Conv2d(128, 128, 5, 2, 2, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
-            nn.Conv2d(128, 128, 5, 2, 2, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
-            Expression(lambda tensor: tensor.view(tensor.size(0), 128 * 7 * 7)),
+            Expression(lambda tensor: tensor.view(tensor.size(0), 128 * 4 * 4)),
         )
         
         if output_params:
-            self.core_net.add_module(str(len(self.core_net._modules)), WN_Linear(7 * 7 * 128, self.noise_size*2, train_scale=True, init_stdv=0.1))
+            self.core_net.add_module(str(len(self.core_net._modules)), WN_Linear(4 * 4 * 128, self.noise_size*2, train_scale=True, init_stdv=0.1))
             self.core_net.add_module(str(len(self.core_net._modules)), Expression(lambda x: torch.chunk(x, 2, 1)))
         else:
-            self.core_net.add_module(str(len(self.core_net._modules)), WN_Linear(7 * 7 * 128, self.noise_size, train_scale=True, init_stdv=0.1))
+            self.core_net.add_module(str(len(self.core_net._modules)), WN_Linear(4 * 4 * 128, self.noise_size, train_scale=True, init_stdv=0.1))
 
     def forward(self, input):
         

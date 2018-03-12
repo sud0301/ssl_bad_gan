@@ -268,7 +268,7 @@ class Trainer(object):
         if not os.path.exists(save_direc):
             os.makedirs(save_direc)
 
-        save_path = os.path.join(save_direc, '{}.FM+VI.{}.png'.format(self.concount))
+        save_path = os.path.join(save_direc, '{}.FM+VI.{}.png'.format(self.config.dataset, count))
         vutils.save_image(gen_images.data.cpu(), save_path, normalize=True, range=(-1,1), nrow=10)
 
     def save(self):

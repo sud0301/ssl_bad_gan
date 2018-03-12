@@ -6,13 +6,12 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 import torchvision.utils as vutils
 import torch.backends.cudnn as cudnn
-
+import torchvision.transforms as transforms
 
 import data
 import config
-#import model224x224 as model
+import model128x128_chair_gen_224x224 as model
 #import model128x128 as model
-from resnet import *
 
 import random
 import time
@@ -26,6 +25,7 @@ from utils import *
 #from resnet import *
 from badgan_net import *
 from config import pr2_config
+from PIL import Image
 
 use_cuda = torch.cuda.is_available()
 use_pretrained_CIFAR10_dis = False
@@ -64,9 +64,8 @@ class Trainer(object):
                 self.dis.module.out_net = WN_Linear(192, 7, train_scale=True, init_stdv=0.1) 
                 self.dis.cuda()
             else:
-                #self.dis = model.Discriminative(config).cuda()
-                self.dis = ResNet18()
-           
+                self.dis = model.Discriminative(config).cuda()
+          
             self.gen = model.Generator(image_size=config.image_size, noise_size=config.noise_size).cuda()
             self.enc = model.Encoder(config.image_size, noise_size=config.noise_size, output_params=True).cuda()
     
@@ -88,6 +87,7 @@ class Trainer(object):
 
 
         self.d_criterion = nn.CrossEntropyLoss()
+
 
         self.save_direc = os.path.join(self.config.save_dir, self.config.model_name)
 
@@ -114,6 +114,8 @@ class Trainer(object):
         self.dis.train()
         self.gen.train()
         self.enc.train()
+        
+        transform_224 = transforms.Compose([ transforms.Resize(size=(224, 224)), transforms.ToTensor()])
 
         ##### train Dis
         lab_images, lab_labels = self.labeled_loader.next()
@@ -123,11 +125,20 @@ class Trainer(object):
         unl_images = Variable(unl_images.cuda())
 
         noise = Variable(torch.Tensor(unl_images.size(0), config.noise_size).uniform_().cuda())
-        gen_images = self.gen(noise)
+        gen_image = self.gen(noise)
+
+        gen_images = []
+        gen_image = gen_image.data.cpu().numpy()
+        for i in range(gen_image.shape[0]):
+            gen_images.append(Image.fromarray(gen_image[i,:].astype('uint8'), 'RGB'))
+        #gen_images[1,:,:,:] = Image.fromarray(gen_images[1,:,:,:].astype('uint8'), 'RGB') 
+        #print (gen_images.shape)      
+        gen_images = np.array(gen_images)
+        tr_gen_images = transform_224(gen_images)
         
         lab_logits = self.dis(lab_images)
         unl_logits = self.dis(unl_images)
-        gen_logits = self.dis(gen_images.detach())
+        gen_logits = self.dis(tr_gen_images.detach())
 
         # Standard classification loss
         lab_loss = self.d_criterion(lab_logits, lab_labels)
@@ -163,8 +174,12 @@ class Trainer(object):
         vi_loss = gaussian_nll(mu, log_sigma, noise)
 
         # Feature matching loss
-        unl_feat = self.dis(unl_images, feat=True)
-        gen_feat = self.dis(gen_images, feat=True)
+        transform_224 = transforms.Compose([ transforms.Resize(size=(224, 224)), transform.ToTensor()])
+        gen_images.data.cpu().numpy()
+        tr_gen_images = transform_224(gen_images)
+        
+        unl_feat = self.dis(tr_unl_images, feat=True)
+        gen_feat = self.dis(tr_gen_images, feat=True)
         fm_loss = torch.mean(torch.abs(torch.mean(gen_feat, 0) - torch.mean(unl_feat, 0)))
 
         # Generator loss
@@ -199,9 +214,15 @@ class Trainer(object):
         for i, (images, _) in enumerate(data_loader.get_iter()):
             images = Variable(images.cuda(), volatile=True)
             noise = Variable(torch.Tensor(images.size(0), self.config.noise_size).uniform_().cuda(), volatile=True)
-
+            transform_224 = transforms.Compose([transforms.Resize(size=(224, 224)), transforms.ToTensor()])
+            
+      
+            gen_images = self.gen(noise)
+            gen_images.data.cpu().numpy()
+            tr_gen_images = transform_224(gen_images)
+  
             unl_feat = self.dis(images, feat=True)
-            gen_feat = self.dis(self.gen(noise), feat=True)
+            gen_feat = self.dis(tr_gen_images, feat=True)
 
             if use_pretrained_CIFAR10_dis:
                 unl_logits = self.dis.module.out_net(unl_feat)
@@ -256,7 +277,7 @@ class Trainer(object):
         return loss / cnt, incorrect, pred_list, label_list #, class_dist, class_pred
 
 
-    def visualize(self, count):
+    def visualize(self):
         self.gen.eval()
         self.dis.eval()
         self.enc.eval()
@@ -264,13 +285,12 @@ class Trainer(object):
         vis_size = 100
         noise = Variable(torch.Tensor(vis_size, self.config.noise_size).uniform_().cuda())
         gen_images = self.gen(noise)
-        
         save_direc = os.path.join(self.config.save_dir, self.config.model_name)
 
         if not os.path.exists(save_direc):
             os.makedirs(save_direc)
 
-        save_path = os.path.join(save_direc, '{}.FM+VI.{}.png'.format(self.config.dataset, count))
+        save_path = os.path.join(save_direc, '{}.FM+VI.{}.png'.format(self.config.dataset, self.config.suffix))
         vutils.save_image(gen_images.data.cpu(), save_path, normalize=True, range=(-1,1), nrow=10)
 
     def save(self):
@@ -302,7 +322,7 @@ class Trainer(object):
                 if hasattr(m, 'init_mode'):
                     setattr(m, 'init_mode', flag)
             return func
-
+        
         images = []
         for i in range(int(500 / self.config.train_batch_size)):
             lab_images, _ = self.labeled_loader.next()
@@ -315,19 +335,17 @@ class Trainer(object):
         #print(noise.size())
         #noise = noise.view(images.size(0)*self.config.noise_size, 1, 1)
         gen_images = self.gen(noise)
-        #gen_images.cuda()
+        gen_images.cuda()
         self.gen.apply(func_gen(False))
 
         self.enc.apply(func_gen(True))
         self.enc(gen_images)
         self.enc.apply(func_gen(False))
 
-        '''
-        self.dis.apply(func_gen(True))
-        logits = self.dis(Variable(images.cuda(), volatile=True))
-        #logits = self.dis(Variable(images.cuda()))
-        self.dis.apply(func_gen(False))
-        '''
+        #self.dis.apply(func_gen(True))
+        #logits = self.dis(Variable(images.cuda(), volatile=True))
+        #self.dis.apply(func_gen(False))
+
     def train(self):
         config = self.config
         self.param_init()
@@ -357,8 +375,7 @@ class Trainer(object):
                 monitor[k] += v
 
             if iter % config.vis_period == 0:
-                count = iter / config.vis_period
-                self.visualize(count)
+                self.visualize()
 
             if iter % config.eval_period == 0:
                 train_loss, train_incorrect, _, _  = self.eval(self.labeled_loader)
@@ -404,7 +421,7 @@ class Trainer(object):
             self.iter_cnt += 1
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='pr2_trainer_128x128.py')
+    parser = argparse.ArgumentParser(description='pr2_trainer_224x224.py')
     parser.add_argument('-suffix', default='run0', type=str, help="Suffix added to the save images.")
 
     args = parser.parse_args()

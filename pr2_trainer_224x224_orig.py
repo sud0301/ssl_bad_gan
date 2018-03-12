@@ -10,9 +10,8 @@ import torch.backends.cudnn as cudnn
 
 import data
 import config
-#import model224x224 as model
+import model224x224 as model
 #import model128x128 as model
-from resnet import *
 
 import random
 import time
@@ -64,9 +63,8 @@ class Trainer(object):
                 self.dis.module.out_net = WN_Linear(192, 7, train_scale=True, init_stdv=0.1) 
                 self.dis.cuda()
             else:
-                #self.dis = model.Discriminative(config).cuda()
-                self.dis = ResNet18()
-           
+                self.dis = model.Discriminative(config).cuda()
+          
             self.gen = model.Generator(image_size=config.image_size, noise_size=config.noise_size).cuda()
             self.enc = model.Encoder(config.image_size, noise_size=config.noise_size, output_params=True).cuda()
     
