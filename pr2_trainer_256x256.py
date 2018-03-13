@@ -302,7 +302,7 @@ class Trainer(object):
             return func
 
         images = []
-        for i in range(int(500 / self.config.train_batch_size)):
+        for i in range(int(100 / self.config.train_batch_size)):
             lab_images, _ = self.labeled_loader.next()
             images.append(lab_images)
         images = torch.cat(images, 0)

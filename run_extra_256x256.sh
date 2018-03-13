@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -l nodes=1:ppn=1:gpus=1:nvidiaTITANX
-#PBS -l mem=20gb
+#PBS -l mem=30gb
 #PBS -l walltime=24:00:00
 #PBS -e myprog.err
 #PBS -o myprog.out

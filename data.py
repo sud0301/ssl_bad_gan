@@ -199,7 +199,10 @@ def get_gris_loaders(config):
 
 def get_pr2_loaders(config):
     #transform = transforms.Compose([transforms.Resize(size=(32, 32), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-    transform = transforms.Compose([ transforms.Resize(size=(config.image_side, config.image_side), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    if config.image_side==256:
+        transform = transforms.Compose([ transforms.Resize(size=(224, 224), interpolation=2),  transforms.Resize(size=(config.image_side, config.image_side), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    else:
+        transform = transforms.Compose([ transforms.Resize(size=(config.image_side, config.image_side), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
     #transform = transforms.Compose([transforms.Resize(size=(config.image_side, config.image_side), interpolation=2), transforms.ToTensor(), transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225 ))])
    
     train_labeled_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/dataset_splits/20180220/train_labeled_sample/train_set_400_1/', transform=transform)   
@@ -250,6 +253,8 @@ def get_pr2_loaders(config):
         train_unlabeled_set_comb = list(zip(images_comb, labels_comb))
         train_unlabeled_indices_comb = np.arange(len(train_unlabeled_set_comb))
         np.random.shuffle(train_unlabeled_indices_comb)
+        
+        #train_unlabeled_indices_comb = train_unlabeled_indices_comb_all[:10000]
         print ('# UnLabeled indices combined', len(train_unlabeled_indices_comb) )
  
     test_set = ImageFolder('/misc/lmbraid19/mittal/yolo-9000/yolo_dataset/dataset_splits/20180220/test_labeled_sample/test_set_1/', transform=transform)   

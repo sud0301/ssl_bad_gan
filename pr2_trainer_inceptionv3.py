@@ -66,15 +66,15 @@ class Trainer(object):
                 self.dis.module.out_net = WN_Linear(192, 7, train_scale=True, init_stdv=0.1) 
                 self.dis.cuda()
             else:
-                self.dis = model.Discriminative(config).cuda()
-                '''
+                #self.dis = model.Discriminative(config).cuda()
+                
                 self.dis = inception_v3()
                 self.dis.cuda()
                 self.dis = torch.nn.DataParallel(self.dis, device_ids=range(torch.cuda.device_count()))
                 cudnn.benchmark = True     
                 self.dis.module.fc = nn.Linear(512, 7)
                 self.dis.cuda()
-                '''
+                
             self.gen = model.Generator(image_size=config.image_size, noise_size=config.noise_size).cuda()
             self.enc = model.Encoder(config.image_size, noise_size=config.noise_size, output_params=True).cuda()
     
@@ -224,11 +224,8 @@ class Trainer(object):
             unl_feat = self.dis(images, feat=True)
             gen_feat = self.dis(self.gen(noise), feat=True)
            
-            unl_logits = self.dis.out_net(unl_feat)
-            gen_logits = self.dis.out_net(gen_feat)
-             
-            #unl_logits = self.dis.module.fc(unl_feat)
-            #gen_logits = self.dis.module.fc(gen_feat) 
+            unl_logits = self.dis.module.fc(unl_feat)
+            gen_logits = self.dis.module.fc(gen_feat) 
              
             unl_logsumexp = log_sum_exp(unl_logits)
             gen_logsumexp = log_sum_exp(gen_logits)
@@ -324,7 +321,7 @@ class Trainer(object):
             return func
 
         images = []
-        for i in range(int(100 / self.config.train_batch_size)):
+        for i in range(int(500 / self.config.train_batch_size)):
             lab_images, _ = self.labeled_loader.next()
             images.append(lab_images)
         images = torch.cat(images, 0)
@@ -342,11 +339,12 @@ class Trainer(object):
         self.enc(gen_images)
         self.enc.apply(func_gen(False))
 
+        '''
         self.dis.apply(func_gen(True))
         logits = self.dis(Variable(images.cuda(), volatile=True))
         #logits = self.dis(Variable(images.cuda()))
         self.dis.apply(func_gen(False))
-        
+        '''
     def train(self):
         config = self.config
         self.param_init()

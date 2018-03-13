@@ -127,18 +127,14 @@ class gris_config:
 
 class pr2_config:
     dataset = 'pr2'
-    model_name = '224x224_tr_1_te_1_25k_400_7_comb_resnet18'
+    #model_name = '224x224_tr_1_te_1_25k_400_7_comb_inceptionv3'
     #model_name = '128x128_tr_1_te_1_24k_400_12_feat_384_chair_gen_again'
     #model_name = '128x128_tr_1_te_1_20k_400_12_feat_384_chair_gen'
-    #model_name = '128x128_tr_1_te_1_25k_400_7_comb_no_vi'
     #model_name = '128x128_tr_1_te_1_24k_400_12_feat_384_chair_gen_again'
     #model_name = '64x64_tr_1_te_1_24k_400_7_imagenet_norm'
     #model_name = '32x32_tr_1_te_1_20k_400_googlenet'
    
-    image_side = 224
-    #image_size = 3 * 64 * 64
-    image_size = 3 * 224 * 224
-    #image_size = 3 * 64 * 64
+    image_side = 256
     num_label = 7
 
     gen_emb_size = 20
@@ -161,10 +157,29 @@ class pr2_config:
 
     size_labeled_data = 2800
     size_test_data = 1400
+       
+    if image_side == 256:
+        model_name = '256x256_tr_1_te_1_25k_400_7_comb' 
+        image_size = 3 * 256 * 256 
+        train_batch_size = 8   
+        train_batch_size_2 = 8
+        dev_batch_size = 8
+    
+    elif image_side == 224:
+        model_name = '224x224_tr_1_te_1_25k_400_7_comb_again2' 
+        image_size = 3 * 224 * 224 
+        train_batch_size = 16   
+        train_batch_size_2 = 16
+        dev_batch_size = 16
+    
+    elif image_side == 128:
+        model_name = '128x128_tr_1_te_1_25k_400_7_comb'
+        image_size = 3 * 128 * 128 
+        train_batch_size = 16   
+        train_batch_size_2 = 16
+        dev_batch_size = 16
+        
 
-    train_batch_size = 16
-    train_batch_size_2 = 16
-    dev_batch_size = 16
 
     max_epochs = 2000
     vi_weight =  5e-2 #default

@@ -323,15 +323,15 @@ class Encoder(nn.Module):
             nn.Conv2d( 64, 64, 5, 2, 2, bias=False), nn.BatchNorm2d(64), nn.ReLU(),
             nn.Conv2d( 64, 128, 5, 2, 2, bias=False), nn.BatchNorm2d(128), nn.ReLU(), #64x64
             nn.Conv2d(128, 128, 5, 2, 2, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
-            nn.Conv2d(128, 128, 5, 2, 2, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
-            Expression(lambda tensor: tensor.view(tensor.size(0), 128 * 7 * 7)),
+            nn.Conv2d(128, 256, 5, 2, 2, bias=False), nn.BatchNorm2d(256), nn.ReLU(),
+            Expression(lambda tensor: tensor.view(tensor.size(0), 256 * 7 * 7)),
         )
         
         if output_params:
-            self.core_net.add_module(str(len(self.core_net._modules)), WN_Linear(7 * 7 * 128, self.noise_size*2, train_scale=True, init_stdv=0.1))
+            self.core_net.add_module(str(len(self.core_net._modules)), WN_Linear(7 * 7 * 256, self.noise_size*2, train_scale=True, init_stdv=0.1))
             self.core_net.add_module(str(len(self.core_net._modules)), Expression(lambda x: torch.chunk(x, 2, 1)))
         else:
-            self.core_net.add_module(str(len(self.core_net._modules)), WN_Linear(7 * 7 * 128, self.noise_size, train_scale=True, init_stdv=0.1))
+            self.core_net.add_module(str(len(self.core_net._modules)), WN_Linear(7 * 7 * 256, self.noise_size, train_scale=True, init_stdv=0.1))
 
     def forward(self, input):
         
