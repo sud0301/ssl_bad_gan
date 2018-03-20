@@ -236,6 +236,12 @@ def get_pr2_loaders(config):
      
 
     if config.include_train_labeled: 	
+        images_unl, labels_unl = zip(*train_unlabeled_set)
+        images_lab, labels_lab = zip(*train_labeled_set)
+
+        images_comb = images_unl + images_lab
+        labels_comb = labels_unl + labels_lab
+        '''
         count_comb = len(train_labeled_indices) + len(train_unlabeled_indices)
         images_comb, labels_comb = [], []
         for idx in train_labeled_indices:
@@ -246,7 +252,7 @@ def get_pr2_loaders(config):
             image, label = train_unlabeled_set[idx]
             images_comb.append(image)
             labels_comb.append(label)
-
+        '''
         images_comb = torch.stack(images_comb, 0)
         labels_comb = torch.from_numpy(np.array(labels_comb, dtype=np.int64)).squeeze()
    

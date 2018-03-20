@@ -67,14 +67,7 @@ class Trainer(object):
                 self.dis.cuda()
             else:
                 self.dis = model.Discriminative(config).cuda()
-                '''
-                self.dis = inception_v3()
-                self.dis.cuda()
-                self.dis = torch.nn.DataParallel(self.dis, device_ids=range(torch.cuda.device_count()))
-                cudnn.benchmark = True     
-                self.dis.module.fc = nn.Linear(512, 7)
-                self.dis.cuda()
-                '''
+            
             self.gen = model.Generator(image_size=config.image_size, noise_size=config.noise_size).cuda()
             self.enc = model.Encoder(config.image_size, noise_size=config.noise_size, output_params=True).cuda()
     

@@ -5,13 +5,10 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.autograd import Variable
 import torchvision.utils as vutils
-import torch.backends.cudnn as cudnn
-
 
 import data
 import config
-import model224x224 as model
-#import model128x128 as model
+import model
 
 import random
 import time
@@ -19,21 +16,9 @@ import os, sys
 import math
 import argparse
 from collections import OrderedDict
-import csv
-import numpy as np
-from utils import *
-#from resnet import *
-from badgan_net import *
-from config import pr2_config
-#import torchvision.models as models
-from resnet_224 import *
-from inceptionv3_224 import *
 
-use_cuda = torch.cuda.is_available()
-use_pretrained_CIFAR10_dis = False
-saving_mode = True
-loading_mode = False
-#cudnn.benchmark = True     
+import numpy as np
+from utils_cycle import *
 
 class Trainer(object):
 
@@ -50,76 +35,37 @@ class Trainer(object):
         sys.stdout.write(disp_str)
         sys.stdout.flush()
 
-        self.labeled_loader, self.unlabeled_loader, self.unlabeled_loader2, self.dev_loader, self.special_set = data.get_pr2_loaders(config)
+        self.labeled_loader, self.unlabeled_loader, self.unlabeled_loader2, self.dev_loader, self.special_set = data.get_cifar_loaders(config)
 
-
-        if saving_mode:
-            if use_pretrained_CIFAR10_dis:
-                self.dis = BadGAN(pr2_config)
-                print (self.dis)
-                if use_cuda:
-                    self.dis.cuda()
-                    self.dis = torch.nn.DataParallel(self.dis, device_ids=range(torch.cuda.device_count()))
-                    cudnn.benchmark = True     
-            #net.load_state_dict(torch.load(os.path.join(save_direc, pr2_config.model_name + '_net.pkl')))
-                self.dis.load_state_dict(torch.load('../pytorch-cifar/logs/cifar_pretrained_badGAN/cifar_pretrained_badGAN_net.pkl'))
-                self.dis.module.out_net = WN_Linear(192, 7, train_scale=True, init_stdv=0.1) 
-                self.dis.cuda()
-            else:
-                #self.dis = model.Discriminative(config).cuda()
-                
-                self.dis = inception_v3()
-                self.dis.cuda()
-                self.dis = torch.nn.DataParallel(self.dis, device_ids=range(torch.cuda.device_count()))
-                cudnn.benchmark = True     
-                self.dis.module.fc = nn.Linear(2048, 7)
-                #self.dis.module.AuxLogits = nn.Linear(768, 7)
-                self.dis.cuda()
-                
-            self.gen = model.Generator(image_size=config.image_size, noise_size=config.noise_size).cuda()
-            self.enc = model.Encoder(config.image_size, noise_size=config.noise_size, output_params=True).cuda()
-    
-        if loading_mode:
-            self.dis = model.Discriminative(config).cuda()
-            self.gen = model.Generator(image_size=config.image_size, noise_size=config.noise_size).cuda()
-            self.enc = model.Encoder(config.image_size, noise_size=config.noise_size, output_params=True).cuda() 
-            self.load()
-
-        self.num_dis = sum(p.numel() for p in self.dis.parameters() if p.requires_grad)
-        self.num_gen = sum(p.numel() for p in self.gen.parameters() if p.requires_grad)
-        self.num_enc = sum(p.numel() for p in self.enc.parameters() if p.requires_grad)
-    
-        print ('num_dis: ', self.num_dis, 'num_gen: ', self.num_gen, 'num_enc: ', self.num_enc)        
+        self.dis = model.Discriminative(config).cuda()
+        self.gen = model.Generator(image_size=config.image_size, noise_size=config.noise_size).cuda()
+        self.enc = model.Encoder(config.image_size, noise_size=config.noise_size, output_params=True).cuda()
 
         self.dis_optimizer = optim.Adam(self.dis.parameters(), lr=config.dis_lr, betas=(0.5, 0.999))
         self.gen_optimizer = optim.Adam(self.gen.parameters(), lr=config.gen_lr, betas=(0.0, 0.999))
         self.enc_optimizer = optim.Adam(self.enc.parameters(), lr=config.enc_lr, betas=(0.0, 0.999))
 
-
         self.d_criterion = nn.CrossEntropyLoss()
 
-        self.save_direc = os.path.join(self.config.save_dir, self.config.model_name)
+        if not os.path.exists(self.config.save_dir):
+            os.makedirs(self.config.save_dir)
 
-        if not os.path.exists(self.save_direc):
-            os.makedirs(self.save_direc)
-
-        log_path = os.path.join(self.save_direc, '{}.FM+VI.{}.txt'.format(self.config.dataset, self.config.suffix))
+        log_path = os.path.join(self.config.save_dir, '{}.FM+VI.{}.txt'.format(self.config.dataset, self.config.suffix))
         self.logger = open(log_path, 'w')
         self.logger.write(disp_str)
 
         print (self.dis)
-        print (self.gen)
-        print (self.enc)
 
     def _get_vis_images(self, labels):
         labels = labels.data.cpu()
         vis_images = self.special_set.index_select(0, labels)
         return vis_images
 
+    def mse_loss(self, input, target):
+        return torch.sum((input - target)**2) / input.data.nelement()
+
     def _train(self, labeled=None, vis=False):
         config = self.config
-        
-        
         self.dis.train()
         self.gen.train()
         self.enc.train()
@@ -169,28 +115,26 @@ class Trainer(object):
 
         # Entropy loss via variational inference
         mu, log_sigma = self.enc(gen_images)
-        vi_loss = gaussian_nll(mu, log_sigma, noise)
+        nll, vi_loss = gaussian_nll(mu, log_sigma, noise)
+
+        noise_tr = Variable(torch.Tensor(unl_images.size(0), config.noise_size).uniform_().cuda())
+        mu_tr, log_sigma_tr = self.enc(unl_images)
+        nll_tr, _ = gaussian_nll(mu_tr, log_sigma_tr, noise_tr)
+      
+        rec_images = self.gen(nll_tr)
+   
+        recons_loss_A = self.mse_loss(rec_images, unl_images)              
+        recons_loss_B = torch.mean(torch.abs(torch.mean(nll, 0) - torch.mean(noise, 0)))
+        cycle_loss = recons_loss_A  + recons_loss_B
+
 
         # Feature matching loss
         unl_feat = self.dis(unl_images, feat=True)
         gen_feat = self.dis(gen_images, feat=True)
-        
-        '''
-        unl_feat = self.dis.module.avgpool(unl_images)
-        print (unl_feat.size())    
-        unl_feat = unl_feat.view(unl_feat.size(0), -1)
-        gen_feat = self.dis.module.avgpool(gen_images)
-        print (gen_feat.size())    
-        gen_feat = gen_feat.view(gen_feat.size(0), -1)
-       
-        print (unl_feat.size())    
-        print (gen_feat.size())    
-        '''
-        
         fm_loss = torch.mean(torch.abs(torch.mean(gen_feat, 0) - torch.mean(unl_feat, 0)))
 
         # Generator loss
-        g_loss = fm_loss + config.vi_weight * vi_loss
+        g_loss = fm_loss + config.vi_weight * vi_loss + config.cycle_weight*cycle_loss
         
         self.gen_optimizer.zero_grad()
         self.enc_optimizer.zero_grad()
@@ -206,7 +150,9 @@ class Trainer(object):
                        ('lab loss' , lab_loss.data[0]),
                        ('unl loss' , unl_loss.data[0]),
                        ('fm loss' , fm_loss.data[0]),
-                       ('vi loss' , vi_loss.data[0])
+                       ('vi loss' , vi_loss.data[0]),
+                       ('rec x loss' , recons_loss_A.data[0]),
+                       ('rec z loss' , recons_loss_B.data[0])
                    ])
                 
         return monitor_dict
@@ -224,10 +170,10 @@ class Trainer(object):
 
             unl_feat = self.dis(images, feat=True)
             gen_feat = self.dis(self.gen(noise), feat=True)
-           
-            unl_logits = self.dis.module.fc(unl_feat)
-            gen_logits = self.dis.module.fc(gen_feat) 
-             
+
+            unl_logits = self.dis.out_net(unl_feat)
+            gen_logits = self.dis.out_net(gen_feat)
+
             unl_logsumexp = log_sum_exp(unl_logits)
             gen_logsumexp = log_sum_exp(gen_logits)
 
@@ -250,10 +196,6 @@ class Trainer(object):
         self.enc.eval()
 
         loss, incorrect, cnt = 0, 0, 0
-        pred_list = []
-        label_list = []
-        #class_dist = np.zeros(7, dtype=int)
-        #class_pred = np.zeros(7, dtype=int)
         for i, (images, labels) in enumerate(data_loader.get_iter()):
             images = Variable(images.cuda(), volatile=True)
             labels = Variable(labels.cuda(), volatile=True)
@@ -261,20 +203,11 @@ class Trainer(object):
             loss += self.d_criterion(pred_prob, labels).data[0]
             cnt += 1
             incorrect += torch.ne(torch.max(pred_prob, 1)[1], labels).data.sum()
-            pred_list.append(torch.max(pred_prob, 1)[1])
-            label_list.append(labels)
-            '''
-            for label, pred in zip(labels, torch.max(pred_prob, 1)[1]):
-                print(label)
-                class_dist[label] +=1 
-                if (int(label) == int(pred)):
-                    class_pred[label]+=1
-            '''
             if max_batch is not None and i >= max_batch - 1: break
-        return loss / cnt, incorrect, pred_list, label_list #, class_dist, class_pred
+        return loss / cnt, incorrect
 
 
-    def visualize(self, count):
+    def visualize(self):
         self.gen.eval()
         self.dis.eval()
         self.enc.eval()
@@ -282,37 +215,9 @@ class Trainer(object):
         vis_size = 100
         noise = Variable(torch.Tensor(vis_size, self.config.noise_size).uniform_().cuda())
         gen_images = self.gen(noise)
-        
-        save_direc = os.path.join(self.config.save_dir, self.config.model_name)
 
-        if not os.path.exists(save_direc):
-            os.makedirs(save_direc)
-
-        save_path = os.path.join(save_direc, '{}.FM+VI.{}.png'.format(self.config.dataset, count))
+        save_path = os.path.join(self.config.save_dir, '{}.FM+VI.{}.png'.format(self.config.dataset, self.config.suffix))
         vutils.save_image(gen_images.data.cpu(), save_path, normalize=True, range=(-1,1), nrow=10)
-
-    def save(self):
-        save_direc = os.path.join(self.config.save_dir, self.config.model_name)
-
-        if not os.path.exists(save_direc):
-            os.makedirs(save_direc)
-
-        torch.save(self.gen.state_dict(), os.path.join(save_direc, self.config.model_name + '_G.pkl'))
-        torch.save(self.dis.state_dict(), os.path.join(save_direc, self.config.model_name + '_D.pkl'))
-        torch.save(self.enc.state_dict(), os.path.join(save_direc, self.config.model_name + '_E.pkl'))
-
-        #with open(os.path.join(save_direc, self.config.model_name + '_history.pkl'), 'wb') as f:
-            #pickle.dump(self.train_hist, f)
-
-    def load(self):
-        save_direc = os.path.join(self.config.save_dir, self.config.model_name)
-
-        self.gen.load_state_dict(torch.load(os.path.join(save_direc, self.config.model_name + '_G.pkl')))
-        self.dis.load_state_dict(torch.load(os.path.join(save_direc, self.config.model_name + '_D.pkl')))
-        self.enc.load_state_dict(torch.load(os.path.join(save_direc, self.config.model_name + '_E.pkl')))
-
-    def count_parameters(self):
-        return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
     def param_init(self):
         def func_gen(flag):
@@ -322,30 +227,24 @@ class Trainer(object):
             return func
 
         images = []
-        for i in range(int(50 / self.config.train_batch_size)):
+        for i in range(int(500 / self.config.train_batch_size)):
             lab_images, _ = self.labeled_loader.next()
             images.append(lab_images)
         images = torch.cat(images, 0)
-        images.cuda()
 
         self.gen.apply(func_gen(True))
-        noise = Variable(torch.Tensor(images.size(0), self.config.noise_size).uniform_().cuda(), volatile=True)
-        #print(noise.size())
-        #noise = noise.view(images.size(0)*self.config.noise_size, 1, 1)
+        noise = Variable(torch.Tensor(images.size(0), self.config.noise_size).uniform_().cuda())
         gen_images = self.gen(noise)
-        #gen_images.cuda()
         self.gen.apply(func_gen(False))
 
         self.enc.apply(func_gen(True))
         self.enc(gen_images)
         self.enc.apply(func_gen(False))
 
-                
         self.dis.apply(func_gen(True))
-        logits = self.dis(Variable(images.cuda(), volatile=True))
-        #logits = self.dis(Variable(images.cuda()))
+        logits = self.dis(Variable(images.cuda()))
         self.dis.apply(func_gen(False))
-        
+
     def train(self):
         config = self.config
         self.param_init()
@@ -375,33 +274,17 @@ class Trainer(object):
                 monitor[k] += v
 
             if iter % config.vis_period == 0:
-                count = iter / config.vis_period
-                self.visualize(count)
+                self.visualize()
 
             if iter % config.eval_period == 0:
-                train_loss, train_incorrect, _, _  = self.eval(self.labeled_loader)
-                dev_loss, dev_incorrect, pred_list, label_list = self.eval(self.dev_loader)
-                #print (class_dist)
-                #print (class_pred)
-                 
-                rows = zip(label_list, pred_list)
-                with open('predictions_list.csv', 'w') as myfile:
-                    wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
-                    for row in rows:
-                        wr.writerow(row)
-                 
+                train_loss, train_incorrect = self.eval(self.labeled_loader)
+                dev_loss, dev_incorrect = self.eval(self.dev_loader)
+
                 unl_acc, gen_acc, max_unl_acc, max_gen_acc = self.eval_true_fake(self.dev_loader, 10)
 
                 train_incorrect /= 1.0 * len(self.labeled_loader)
                 dev_incorrect /= 1.0 * len(self.dev_loader)
-                
-                if (dev_incorrect <  min_dev_incorrect):
-                    print ("saving model ...")
-                    self.save()
-                    
-                 
                 min_dev_incorrect = min(min_dev_incorrect, dev_incorrect)
-
 
                 disp_str = '#{}\ttrain: {:.4f}, {:.4f} | dev: {:.4f}, {:.4f} | best: {:.4f}'.format(
                     iter, train_loss, train_incorrect, dev_loss, dev_incorrect, min_dev_incorrect)
@@ -422,12 +305,12 @@ class Trainer(object):
             self.iter_cnt += 1
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='pr2_trainer_128x128.py')
+    parser = argparse.ArgumentParser(description='cifar_trainer.py')
     parser.add_argument('-suffix', default='run0', type=str, help="Suffix added to the save images.")
 
     args = parser.parse_args()
 
-    trainer = Trainer(config.pr2_config(), args)
+    trainer = Trainer(config.cifar_config(), args)
     trainer.train()
 
 

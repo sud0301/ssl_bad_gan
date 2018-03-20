@@ -94,7 +94,8 @@ class cifar_config:
     dev_batch_size = 200
 
     max_epochs = 1200
-    vi_weight = 1e-2
+    vi_weight = 0
+    cycle_weight = 1e-3
 
 
 class gris_config:
@@ -134,7 +135,7 @@ class pr2_config:
     #model_name = '64x64_tr_1_te_1_24k_400_7_imagenet_norm'
     #model_name = '32x32_tr_1_te_1_20k_400_googlenet'
    
-    image_side = 256
+    image_side = 128
     num_label = 7
 
     gen_emb_size = 20
@@ -149,7 +150,7 @@ class pr2_config:
     enc_lr = 3e-4
     gen_lr = 1e-3
     '''
-    include_train_labeled = True
+    include_train_labeled = False
     eval_period = 1000
     vis_period = 1000
 
@@ -166,24 +167,27 @@ class pr2_config:
         dev_batch_size = 8
     
     elif image_side == 224:
-        model_name = '224x224_tr_1_te_1_25k_400_7_comb_again2' 
+        #model_name = '224x224_tr_1_te_1_25k_400_7_m4_b16' 
+        model_name = '224x224_tr_1_te_1_24k_400_7_vgg11_fcn'
         image_size = 3 * 224 * 224 
         train_batch_size = 16   
         train_batch_size_2 = 16
         dev_batch_size = 16
     
     elif image_side == 128:
-        model_name = '128x128_tr_1_te_1_25k_400_7_comb'
+        #model_name = '128x128_tr_1_te_1_25k_400_7_comb'
+        model_name = '128x128_tr_1_te_1_17k_400_7'
         image_size = 3 * 128 * 128 
         train_batch_size = 16   
         train_batch_size_2 = 16
         dev_batch_size = 16
         
 
-
     max_epochs = 2000
-    vi_weight =  5e-2 #default
+    vi_weight =  1e-2 #default
+    cycle_weight = 0
     #vi_weight = 5e-2
+
 
 class pixelcnn_config:
     dataset = 'mnist'

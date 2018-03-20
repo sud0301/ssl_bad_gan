@@ -10,5 +10,5 @@ source ~/.bashrc
 workon apple
 
 cd /misc/lmbraid19/mittal/ssl_baselines/forked/ssl_bad_gan
-python pr2_trainer_vgg.py >> ./records/output_badGAN_224x224_tr_1_te_1_25k_400_7_vgg.txt
+python pr2_trainer_vgg.py >> ./records/output_badGAN_224x224_tr_1_te_1_24k_400_7_vgg_fcn.txt
 

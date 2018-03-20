@@ -24,11 +24,13 @@ from utils import *
 #from resnet import *
 from badgan_net import *
 from googlenet import *
+import model_imagenet as model
+
 from config import pr2_config
 
 use_cuda = torch.cuda.is_available()
 use_pretrained_CIFAR10_dis = False
-use_pretrained_GoogleNet = True
+use_pretrained_GoogleNet = False
 
 class Trainer(object):
 
@@ -290,16 +292,16 @@ class Trainer(object):
             return func
 
         images = []
-        for i in range(int(500 / self.config.train_batch_size)):
+        for i in range(int(100 / self.config.train_batch_size)):
             lab_images, _ = self.labeled_loader.next()
             images.append(lab_images)
         images = torch.cat(images, 0)
         images.cuda()
 
         self.gen.apply(func_gen(True))
-        noise = Variable(torch.Tensor(images.size(0), self.config.noise_size).uniform_().cuda())
+        noise = Variable(torch.Tensor(images.size(0), self.config.noise_size).uniform_().cuda(), volatile=True)
         gen_images = self.gen(noise)
-        gen_images.cuda()
+        #gen_images.cuda()
         self.gen.apply(func_gen(False))
 
         self.enc.apply(func_gen(True))

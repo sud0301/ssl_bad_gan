@@ -206,7 +206,7 @@ class Discriminative(nn.Module):
         elif config.dataset == 'gris':
             n_filter_1, n_filter_2 = 96, 192	
         elif config.dataset == 'pr2':
-            n_filter_1, n_filter_2, n_filter_3 = 96, 192, 384	
+            n_filter_1, n_filter_2, n_filter_3, n_filter_4 = 96, 256, 384, 1024	
         else:
             raise ValueError('dataset not found: {}'.format(config.dataset))
 
@@ -216,50 +216,36 @@ class Discriminative(nn.Module):
             nn.Sequential(GaussianNoise(0.05), nn.Dropout2d(0.15)) if config.dataset == 'svhn' \
                 else nn.Sequential(GaussianNoise(0.05), nn.Dropout2d(0.2)),
 
-            WN_Conv2d(         3, n_filter_1, 3, 1, 1), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_1, n_filter_1, 3, 1, 1), nn.LeakyReLU(0.2),
+            WN_Conv2d(         3, n_filter_1, 11, 4, 5), nn.LeakyReLU(0.2),
+            WN_Conv2d(n_filter_1, n_filter_1, 1, 1, 0), nn.LeakyReLU(0.2),
             WN_Conv2d(n_filter_1, n_filter_1, 3, 2, 1), nn.LeakyReLU(0.2),
 
-            nn.Dropout2d(0.5) if config.dataset == 'svhn' else nn.Dropout(0.5),
+            #nn.Dropout2d(0.5) if config.dataset == 'svhn' else nn.Dropout(0.5),
             
-            WN_Conv2d(n_filter_1, n_filter_1, 3, 1, 1), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_1, n_filter_1, 3, 1, 1), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_1, n_filter_1, 3, 2, 1), nn.LeakyReLU(0.2),
-
-            nn.Dropout2d(0.5) if config.dataset == 'svhn' else nn.Dropout(0.5),
-            
-            WN_Conv2d(n_filter_1, n_filter_2, 3, 1, 1), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_2, n_filter_2, 3, 1, 1), nn.LeakyReLU(0.2),
+            WN_Conv2d(n_filter_1, n_filter_2, 5, 1, 2), nn.LeakyReLU(0.2),
+            WN_Conv2d(n_filter_2, n_filter_2, 1, 1, 0), nn.LeakyReLU(0.2),
             WN_Conv2d(n_filter_2, n_filter_2, 3, 2, 1), nn.LeakyReLU(0.2),
 
-            nn.Dropout2d(0.5) if config.dataset == 'svhn' else nn.Dropout(0.5),
+            #nn.Dropout2d(0.5) if config.dataset == 'svhn' else nn.Dropout(0.5),
             
-            WN_Conv2d(n_filter_2, n_filter_2, 3, 1, 1), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_2, n_filter_2, 3, 1, 1), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_2, n_filter_2, 3, 2, 1), nn.LeakyReLU(0.2),
-
-            nn.Dropout2d(0.5) if config.dataset == 'svhn' else nn.Dropout(0.5),
-
-            WN_Conv2d(n_filter_2, n_filter_2, 3, 1, 1), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_2, n_filter_2, 3, 1, 1), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_2, n_filter_2, 3, 2, 1), nn.LeakyReLU(0.2),
-            
-            nn.Dropout2d(0.5) if config.dataset == 'svhn' else nn.Dropout(0.5),
-
             WN_Conv2d(n_filter_2, n_filter_3, 3, 1, 1), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_3, n_filter_3, 3, 1, 1), nn.LeakyReLU(0.2),
+            WN_Conv2d(n_filter_3, n_filter_3, 1, 1, 0), nn.LeakyReLU(0.2),
             WN_Conv2d(n_filter_3, n_filter_3, 3, 2, 1), nn.LeakyReLU(0.2),
             
             nn.Dropout2d(0.5) if config.dataset == 'svhn' else nn.Dropout(0.5),
-
-            WN_Conv2d(n_filter_3, n_filter_3, 3, 1, 0), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_3, n_filter_3, 1, 1, 0), nn.LeakyReLU(0.2),
-            WN_Conv2d(n_filter_3, n_filter_3, 1, 1, 0), nn.LeakyReLU(0.2),
+            
+            
+            WN_Conv2d(n_filter_3, n_filter_4, 3, 1, 1), nn.LeakyReLU(0.2),
+            WN_Conv2d(n_filter_4, n_filter_4, 1, 1, 0), nn.LeakyReLU(0.2),
+            WN_Conv2d(n_filter_4, n_filter_4, 1, 1, 0), nn.LeakyReLU(0.2),
+            
+            #nn.AvgPool2d(6)
+            #WN_Conv2d(n_filter_3, n_filter_3, 1, 1, 0), nn.LeakyReLU(0.2),
             
             Expression(lambda tensor: tensor.mean(3).mean(2).squeeze()),
         )
 
-        self.out_net = WN_Linear(n_filter_3, self.num_label, train_scale=True, init_stdv=0.1)
+        self.out_net = WN_Linear(n_filter_4, self.num_label, train_scale=True, init_stdv=0.1)
 
     def forward(self, X, feat=False):
         if X.dim() == 2:
@@ -285,14 +271,14 @@ class Generator(nn.Module):
                 Expression(lambda tensor: tensor.view(tensor.size(0), 512, 7, 7)),
                 nn.ConvTranspose2d(512, 256, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(256), nn.ReLU(),
                 #nn.Conv2d(256, 256, 3, 1, 1, bias=False), nn.BatchNorm2d(256), nn.ReLU(),
-                nn.ConvTranspose2d(256, 128, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
+                nn.ConvTranspose2d(256, 256, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(256), nn.ReLU(),
                 #nn.Conv2d(128, 128, 3, 1, 1, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
-                nn.ConvTranspose2d(128, 128, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(128), nn.ReLU(), # for 64 x 64 network
+                nn.ConvTranspose2d(256, 128, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(128), nn.ReLU(), # for 64 x 64 network
                 #nn.Conv2d( 64,  64, 3, 1, 1, bias=False), nn.BatchNorm2d(64), nn.ReLU(),
-                nn.ConvTranspose2d(128,  64, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(64), nn.ReLU(),
+                nn.ConvTranspose2d(128, 128, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(128), nn.ReLU(),
                 #nn.ConvTranspose2d( 64, 64, 5, 2, 2, 1, bias=False), nn.BatchNorm2d(64), nn.ReLU(),
                 #nn.Conv2d( 64,  64, 3, 1, 1, bias=False), nn.BatchNorm2d(64), nn.ReLU(),
-                WN_ConvTranspose2d( 64,  3, 5, 2, 2, 1, train_scale=True, init_stdv=0.1), nn.Tanh(),
+                WN_ConvTranspose2d(128,  3, 5, 2, 2, 1, train_scale=True, init_stdv=0.1), nn.Tanh(),
             )
         else:
             self.core_net = nn.Sequential(

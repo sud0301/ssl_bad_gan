@@ -1,3 +1,12 @@
 /home/mittal/.bashrc: Zeile 59: bind: Warnung: Zeileneditierung ist nicht aktiviert.
 /home/mittal/.bashrc: Zeile 60: bind: Warnung: Zeileneditierung ist nicht aktiviert.
-/var/spool/torque/mom_priv/jobs/1437080.lmbtorque.SC: Zeile 13: 33112 Getötet                python pr2_trainer_256x256.py >> ./records/output_badGAN_256x256_tr_1_te_1_25k_400_7_comb.txt
+Traceback (most recent call last):
+  File "pr2_trainer_128x128.py", line 409, in <module>
+    trainer = Trainer(config.pr2_config(), args)
+  File "pr2_trainer_128x128.py", line 75, in __init__
+    self.load()
+  File "pr2_trainer_128x128.py", line 290, in load
+    self.gen.load_state_dict(torch.load(os.path.join(save_direc, self.config.model_name + '_G.pkl')))
+  File "/home/mittal/.virtualenvs/apple/lib/python3.5/site-packages/torch/serialization.py", line 227, in load
+    f = open(f, 'rb')
+FileNotFoundError: [Errno 2] No such file or directory: 'pr2_log/128x128_tr_1_te_1_17k_400_7/128x128_tr_1_te_1_17k_400_7_G.pkl'
